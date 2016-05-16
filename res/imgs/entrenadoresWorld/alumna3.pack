@@ -1,0 +1,116 @@
+alumna3.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+cara
+  rotate: false
+  xy: 0, 0
+  size: 55, 55
+  orig: 27, 27
+  offset: 0, 0
+  index: 0
+cara
+  rotate: false
+  xy: 55, 0
+  size: 55, 55
+  orig: 27, 27
+  offset: 0, 0
+  index: 1
+cara
+  rotate: false
+  xy: 110, 0
+  size: 55, 55
+  orig: 27, 27
+  offset: 0, 0
+  index: 2
+cara
+  rotate: false
+  xy: 165, 0
+  size: 55, 55
+  orig: 27, 27
+  offset: 0, 0
+  index: 3
+izquierda
+  rotate: false
+  xy: 0, 55
+  size: 55, 55
+  orig: 27, 27
+  offset: 0, 0
+  index: 0
+izquierda
+  rotate: false
+  xy: 55, 55
+  size: 55, 55
+  orig: 27, 27
+  offset: 0, 0
+  index: 1
+izquierda
+  rotate: false
+  xy: 110, 55
+  size: 55, 55
+  orig: 27, 27
+  offset: 0, 0
+  index: 2
+izquierda
+  rotate: false
+  xy: 165, 55
+  size: 55, 55
+  orig: 27, 27
+  offset: 0, 0
+  index: 3
+derecha
+  rotate: false
+  xy: 0, 110
+  size: 55, 55
+  orig: 27, 27
+  offset: 0, 0
+  index: 0
+derecha
+  rotate: false
+  xy: 55, 110
+  size: 55, 55
+  orig: 27, 27
+  offset: 0, 0
+  index: 1
+derecha
+  rotate: false
+  xy: 110, 110
+  size: 55, 55
+  orig: 27, 27
+  offset: 0, 0
+  index: 2
+derecha
+  rotate: false
+  xy: 165, 110
+  size: 55, 55
+  orig: 27, 27
+  offset: 0, 0
+  index: 3
+espalda
+  rotate: false
+  xy: 0, 165
+  size: 55, 55
+  orig: 27, 27
+  offset: 0, 0
+  index: 0
+espalda
+  rotate: false
+  xy: 55, 165
+  size: 55, 55
+  orig: 27, 27
+  offset: 0, 0
+  index: 1
+espalda
+  rotate: false
+  xy: 110, 165
+  size: 55, 55
+  orig: 27, 27
+  offset: 0, 0
+  index: 2
+espalda
+  rotate: false
+  xy: 165, 165
+  size: 55, 55
+  orig: 27, 27
+  offset: 0, 0
+  index: 3
