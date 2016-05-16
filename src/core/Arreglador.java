@@ -21,7 +21,7 @@ public class Arreglador {
 		String[] tokens;
 		char firstChar;
 		
-		String pok = "Poliwrath";
+		String pok = "Dewgong";
 
 		File file = new File("All Pokemon/" + pok + "/BR_" + pok + ".obj");
 		File fileOut = new File("All Pokemon/" + pok + "/" + pok + ".obj");
@@ -51,6 +51,8 @@ public class Arreglador {
 				} else if (firstChar == 'o' ){
 
 				} else if (firstChar == 'g' ){
+					writer.write(line + "\n");
+				} else if (firstChar == 's' ){
 					writer.write(line + "\n");
 				} else if (tokens[0].equals("mtllib")) {
 					writer.write(line + "\n");
