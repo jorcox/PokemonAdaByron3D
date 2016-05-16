@@ -21,7 +21,7 @@ public class Arreglador {
 		String[] tokens;
 		char firstChar;
 		
-		String pok = "Dewgong";
+		String pok = "Kingler";
 
 		File file = new File("All Pokemon/" + pok + "/BR_" + pok + ".obj");
 		File fileOut = new File("All Pokemon/" + pok + "/" + pok + ".obj");
