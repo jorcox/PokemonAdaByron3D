@@ -46,10 +46,10 @@ public class LoadModelTest<P extends ModelLoader.ModelParameters> extends Game {
         modelBatch = new ModelBatch();
         ObjLoader loader = new ObjLoader();
         
-        String pok = "Dewgong";
+        String pok = "Blastoise";
         
         
-        model = loader.loadModel(Gdx.files.internal("All Pokemon/" + pok + "/" + pok + ".obj"), true);
+        model = loader.loadModel(Gdx.files.internal("res/Models/" + pok + "/" + pok + ".obj"), true);
         instance = new ModelInstance(model);
         
         camController = new CameraInputController(cam);

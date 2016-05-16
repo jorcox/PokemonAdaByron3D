@@ -1,7 +1,6 @@
 # Blender v2.66 (sub 1) OBJ File: 'BR_Sandslash.blend'
 # www.blender.org
 mtllib BR_Sandslash.mtl
-o sandpan
 v 1.573365 -0.791881 -5.579123
 v 1.035043 -0.628057 -4.383131
 v 1.882650 -0.404045 -5.259061
@@ -524,6 +523,7 @@ vt 0.330425 0.107544
 vt 0.353149 0.107544
 vt 0.294919 0.029461
 vt 0.294919 0.247572
+g mat_0
 usemtl mat_0
 s 1
 f 280/1 261/2 276/3
