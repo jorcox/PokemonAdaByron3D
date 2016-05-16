@@ -8,7 +8,7 @@ import com.pokemon.PokemonAdaByron;
 public class DesktopLauncher {
     public static void main (String[] arg) {
         LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-        config.title = "Pokemon Ada Byron";
+        config.title = "Pokemon Ada Byron 3D";
         config.useGL30 = false;
         config.width = 720;
         config.height = 540;
