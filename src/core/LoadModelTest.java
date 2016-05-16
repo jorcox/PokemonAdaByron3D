@@ -45,9 +45,8 @@ public class LoadModelTest<P extends ModelLoader.ModelParameters> extends Game {
         
         modelBatch = new ModelBatch();
         ObjLoader loader = new ObjLoader();
-        
+
         String pok = "Blastoise";
-        
         
         model = loader.loadModel(Gdx.files.internal("res/Models/" + pok + "/" + pok + ".obj"), true);
         instance = new ModelInstance(model);
