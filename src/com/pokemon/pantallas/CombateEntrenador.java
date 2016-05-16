@@ -1,5 +1,6 @@
 package com.pokemon.pantallas;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import pokemon.CreadorEquipo;
@@ -10,12 +11,26 @@ import core.Combate;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.assets.loaders.ModelLoader;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
+import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.pokemon.entities.Player;
 import com.pokemon.tween.SpriteAccessor;
 import com.pokemon.utilidades.ArchivoGuardado;
@@ -29,8 +44,16 @@ public class CombateEntrenador extends Enfrentamiento {
 	private String idEntrenador;
 	private String nombre;
 	private Jugador entrenadorE;
+	int actual;
 
 	TextureRegion[] spritesEntrenador;
+	
+	private PerspectiveCamera cam;
+	private Model[] models;
+	private ModelInstance[] instances;
+	private ModelBatch modelBatch;
+	private Environment environment;
+	private CameraInputController camController;
 
 	public CombateEntrenador(ArchivoGuardado ctx, Player player, String idEntrenador, Pantalla pantalla) {
 		super(ctx, player, pantalla);
@@ -42,12 +65,71 @@ public class CombateEntrenador extends Enfrentamiento {
 		combate = new Combate(jugador, pkmnpokemonEnemigo);
 		orden = combate.getVelocidad(iPokemon);
 		dialogo.procesarDialogo("combate_entrenador");
+		actual = 0;
+		
+		create3D();
+	}
+	
+	private void create3D() {
+		environment = new Environment();
+        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
+        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
+		
+		cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        cam.position.set(10f, 10f, 10f);
+        cam.lookAt(0,0,0);
+        cam.near = 1f;
+        cam.far = 300f;
+        cam.update();
+        
+        listModels();
+        
+        camController = new CameraInputController(cam);
+        Gdx.input.setInputProcessor(camController);
+	}
+	
+	private void listModels() {
+		int len = entrenadorE.getEquipo().size();
+		models = new Model[len];
+		instances = new ModelInstance[len];
+		modelBatch = new ModelBatch();
+        ObjLoader loader = new ObjLoader();
+        
+        for (int i=0; i<len; i++) {
+        	try {
+        		String sDir = "res/Models/" + entrenadorE.getEquipo().get(i);
+            	File dir = new File(sDir);
+            	File[] files = dir.listFiles();
+            	String modelFile = "";
+            	for (int j=0; j<files.length && modelFile.equals(""); j++) {
+            		if (files[i].getName().endsWith("obj")) {
+            			modelFile = sDir + "/" + files[i].getName();
+            			System.out.println(modelFile);
+            		}
+            	}
+            	models[i] = loader.loadModel(Gdx.files.internal(modelFile), true);
+                instances[i] = new ModelInstance(models[i]);
+        	} catch(Exception e) {
+        		/* Si peta al intentar crear el modelo, pone un cubo verde */
+        		models[i] = new ModelBuilder().createBox(5f, 5f, 5f, 
+        	            new Material(ColorAttribute.createDiffuse(Color.GREEN)),
+        	            Usage.Position | Usage.Normal);
+        		instances[i] = new ModelInstance(models[i]);
+        	}
+        	
+        }
+        
 	}
 
 	@Override
 	public void render(float delta) {
+		camController.update();
+		
+		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		
+		render3D();
 
 		font.setColor(Color.BLACK);
 		tweenManager.update(delta);
@@ -222,6 +304,12 @@ public class CombateEntrenador extends Enfrentamiento {
 			}
 		}
 		batch.end();
+	}
+	
+	private void render3D() {
+		modelBatch.begin(cam);
+        modelBatch.render(instances[actual], environment);
+        modelBatch.end();
 	}
 
 	@Override
