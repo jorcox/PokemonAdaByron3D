@@ -45,7 +45,11 @@ public class LoadModelTest<P extends ModelLoader.ModelParameters> extends Game {
         
         modelBatch = new ModelBatch();
         ObjLoader loader = new ObjLoader();
-        model = loader.loadModel(Gdx.files.internal("All Pokemon/Tentacruel/BR_Tentacruel.obj"), true);
+        
+        String pok = "Poliwrath";
+        
+        
+        model = loader.loadModel(Gdx.files.internal("All Pokemon/" + pok + "/" + pok + ".obj"), true);
         instance = new ModelInstance(model);
         
         camController = new CameraInputController(cam);
