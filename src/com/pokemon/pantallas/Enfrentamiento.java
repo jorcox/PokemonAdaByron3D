@@ -51,7 +51,7 @@ public class Enfrentamiento extends Pantalla {
 	protected int xPokemonEnemigo = 450;
 	protected Habilidad[] habilidades;
 
-	protected TweenManager tweenManager;
+	protected TweenManager tweenManager; 
 	protected Combate combate;
 	protected Entrenador en;
 	protected boolean orden;
