@@ -1,7 +1,6 @@
 # Blender v2.66 (sub 1) OBJ File: 'BR_Raticate.blend'
 # www.blender.org
 mtllib BR_Raticate.mtl
-o ratta
 v 1.047047 3.154398 -4.350461
 v 1.047047 3.154398 -4.350461
 v 1.071881 3.147631 -4.248285
@@ -359,6 +358,7 @@ vt 0.399913 0.236487
 vt 0.399861 0.236452
 vt 0.401459 0.237157
 vt 0.401470 0.237159
+g mat_0
 usemtl mat_0
 s 1
 f 31/1 3/2 30/3

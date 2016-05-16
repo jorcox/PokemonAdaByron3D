@@ -23,8 +23,8 @@ public class Arreglador {
 		
 		String pok = "Kingler";
 
-		File file = new File("All Pokemon/" + pok + "/BR_" + pok + ".obj");
-		File fileOut = new File("All Pokemon/" + pok + "/" + pok + ".obj");
+		File file = new File("res/Models/" + pok + "/BR_" + pok + ".obj");
+		File fileOut = new File("res/Models/" + pok + "/" + pok + ".obj");
 		try {
 			if (!fileOut.exists()) {
 				fileOut.createNewFile();
