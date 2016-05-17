@@ -58,7 +58,7 @@ public class CombateEntrenador extends Enfrentamiento {
 		dialogo.procesarDialogo("combate_entrenador");
 		actual = 0;
 		
-		create3D();
+		
 	}
 	
 	private void create3D() {
@@ -286,6 +286,7 @@ public class CombateEntrenador extends Enfrentamiento {
 	@Override
 	public void show() {
 		super.show();
+		create3D();
 		entrenador = new Sprite(new Texture("res/imgs/entrenadores/" + idEntrenador + ".png"));
 		protagonista = new Sprite(new Texture("res/imgs/entrenadores/prota.png"));
 		protagonista.setSize(150, 240);
