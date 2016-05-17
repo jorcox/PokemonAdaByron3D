@@ -92,8 +92,6 @@ public abstract class Enfrentamiento extends Pantalla {
 			protagonista, expBar, level, aprender, cajaAprender;
 
 	protected PerspectiveCamera cam;
-	protected Model[] models;
-	protected ModelInstance[] instances;
 	protected ModelBatch modelBatch;
 	protected Environment environment;
 	protected CameraInputController camController;

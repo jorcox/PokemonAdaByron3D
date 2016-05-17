@@ -43,6 +43,9 @@ public class CombateEntrenador extends Enfrentamiento {
 
 	TextureRegion[] spritesEntrenador;
 	
+	protected Model[] models;
+	protected ModelInstance[] instances;
+	
 	public CombateEntrenador(ArchivoGuardado ctx, Player player, String idEntrenador, Pantalla pantalla) {
 		super(ctx, player, pantalla);
 		this.fase = 0;
@@ -115,9 +118,9 @@ public class CombateEntrenador extends Enfrentamiento {
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-		
-		render3D();
 
+		render3D();
+		
 		font.setColor(Color.BLACK);
 		tweenManager.update(delta);
 		batch.begin();
@@ -130,6 +133,7 @@ public class CombateEntrenador extends Enfrentamiento {
 
 		font.draw(batch, dialogo.getLinea1(), 50, 85);
 		font.draw(batch, dialogo.getLinea2(), 50, 45);
+	
 		if (fase == 0) {
 
 			entrenador.draw(batch);
@@ -285,9 +289,9 @@ public class CombateEntrenador extends Enfrentamiento {
 	}
 	
 	private void render3D() {
-		modelBatch.begin(cam);
-        modelBatch.render(instances[actual], environment);
-        modelBatch.end();
+			modelBatch.begin(cam);
+	        modelBatch.render(instances[actual], environment);
+	        modelBatch.end();
 	}
 
 	@Override

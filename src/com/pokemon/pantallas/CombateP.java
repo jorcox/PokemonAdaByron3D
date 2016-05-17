@@ -5,14 +5,28 @@ import pokemon.Pokemon;
 import aurelienribon.tweenengine.Tween;
 import core.Combate;
 
+import java.io.File;
+
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
+import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.pokemon.entities.Player;
 import com.pokemon.mochila.Ball;
 import com.pokemon.tween.SpriteAccessor;
@@ -26,6 +40,9 @@ public class CombateP extends Enfrentamiento {
 	private boolean atrapado = false;
 	private int xBall = 120, yBall = 120, animacionBall = 60;
 	private Sprite ball;
+	
+	private Model model;
+	private ModelInstance instance;
 
 	public CombateP(ArchivoGuardado ctx, Player player, int fase, Pantalla pantalla, Pokemon pkmnpokemonEnemigo) {
 		super(ctx, player, pantalla);
@@ -36,12 +53,63 @@ public class CombateP extends Enfrentamiento {
 		dialogo.procesarDialogo("salvaje");
 		pkmn = jugador.getEquipo().get(iPokemon);
 		this.pkmnpokemonEnemigo = pkmnpokemonEnemigo;
+		
+		create3D();
+	}
+	
+	private void create3D() {
+		environment = new Environment();
+        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
+        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
+		
+		cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        cam.position.set(10f, 10f, 10f);
+        cam.lookAt(0,0,0);
+        cam.near = 1f;
+        cam.far = 300f;
+        cam.update();
+        
+        obtainModel();
+        
+        
+        camController = new CameraInputController(cam);
+	}
+	
+	private void obtainModel() {
+		modelBatch = new ModelBatch();
+		try {
+			ObjLoader loader = new ObjLoader();
+        	String sDir = "res/Models/" + pkmnpokemonEnemigo.getNombre();
+        	File dir = new File(sDir);
+        	File[] files = dir.listFiles();
+        	String modelFile = "";
+        	for (int j=0; j<files.length && modelFile.equals(""); j++) {
+        		if (files[j].getName().endsWith("obj")) {
+        			modelFile = sDir + "/" + files[j].getName();
+        			System.out.println(modelFile);
+        		}
+        	}
+        	model = loader.loadModel(Gdx.files.internal(modelFile), true);
+            instance = new ModelInstance(model);
+        } catch(Exception e) {
+        	/* Si peta al intentar crear el modelo, pone un cubo verde */
+    		model = new ModelBuilder().createBox(5f, 5f, 5f, 
+    	            new Material(ColorAttribute.createDiffuse(Color.GREEN)),
+    	            Usage.Position | Usage.Normal);
+    		instance = new ModelInstance(model);
+        }
 	}
 
 	@Override
 	public void render(float delta) {
+		camController.update();
+		
+		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClearColor(0, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+		
+		render3D();
+		
 		font.setColor(Color.BLACK);
 		tweenManager.update(delta);
 		batch.begin();
@@ -178,6 +246,12 @@ public class CombateP extends Enfrentamiento {
 			lanzamientoBall();
 		}
 		batch.end();
+	}
+	
+	private void render3D() {
+		modelBatch.begin(cam);
+        modelBatch.render(instance, environment);
+        modelBatch.end();
 	}
 
 	@Override
