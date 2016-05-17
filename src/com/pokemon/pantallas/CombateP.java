@@ -54,7 +54,7 @@ public class CombateP extends Enfrentamiento {
 		pkmn = jugador.getEquipo().get(iPokemon);
 		this.pkmnpokemonEnemigo = pkmnpokemonEnemigo;
 		
-		create3D();
+		
 	}
 	
 	private void create3D() {
@@ -239,6 +239,7 @@ public class CombateP extends Enfrentamiento {
 	@Override
 	public void show() {
 		super.show();
+		create3D();
 		if (show) {
 			show = false;
 			Tween.set(base, SpriteAccessor.SLIDE).target(500, 120).start(tweenManager);
