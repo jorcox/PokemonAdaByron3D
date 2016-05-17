@@ -45,36 +45,27 @@ public class CombateP extends Enfrentamiento {
 		font.setColor(Color.BLACK);
 		tweenManager.update(delta);
 		batch.begin();
-		bg.draw(batch);
-		bg.setSize(720, 540);
 		base.draw(batch);
 		baseEnemy.draw(batch);
 		message.draw(batch);
 		message.setSize(720, 120);
-		pokemonEnemigo.draw(batch);
-		pokemonEnemigo.setSize(120, 120);
 		font.draw(batch, dialogo.getLinea1(), 50, 85);
 		font.draw(batch, dialogo.getLinea2(), 50, 45);
 		base.setPosition(-70, 120);
 		baseEnemy.setPosition(350, 300);
-		pokemonEnemigo.setPosition(400, 350);
 		/*
 		 * Aparacion de pokemon pokemonEnemigo
 		 */
 		if (fase == 2) {
 
 			aparicionPokemon(pokemon);
-			pokemonEnemigo.draw(batch);
 			pokemon.draw(batch);
 		}
 		if (fase > 2) {
 			baseEnemy.setPosition(350, 300);
 			base.setPosition(-70, 120);
-			pokemonEnemigo.setSize(tamanoPokemon, tamanoPokemon);
 			pokemon.setSize(tamanoPokemon, tamanoPokemon);
-			pokemonEnemigo.setPosition(400, 350);
 			pokemon.setPosition(50, 99);
-			pokemonEnemigo.draw(batch);
 			pokemon.draw(batch);
 
 		}
@@ -107,7 +98,6 @@ public class CombateP extends Enfrentamiento {
 			 * Dialogo Ataque
 			 */
 			pokemon.setAlpha(1);
-			pokemonEnemigo.setAlpha(1);
 			pokemon.draw(batch);
 			dibujarCajasVida();
 			dibujarVidas();
@@ -122,7 +112,6 @@ public class CombateP extends Enfrentamiento {
 			dibujarExp();
 			dibujarVidas();
 			if ((orden && fase == 6) || (!orden && fase == 8)) {
-				pokemonEnemigo.setAlpha(1);
 				if (acierto != -1 && acierto != 1)
 					ataqueRecibido(true);
 				animacionVida(true);
@@ -145,7 +134,6 @@ public class CombateP extends Enfrentamiento {
 			dibujarExp();
 			dibujarVidas();
 			if (pkmnpokemonEnemigo.getPs() <= 0) {
-				pokemonEnemigo.setAlpha(0);
 			} else if (pkmn.getPs() <= 0) {
 				pokemon.setAlpha(0);
 			}
@@ -197,14 +185,10 @@ public class CombateP extends Enfrentamiento {
 		super.show();
 		if (show) {
 			show = false;
-			Tween.set(bg, SpriteAccessor.ALPHA).target(0).start(tweenManager);
-			Tween.to(bg, SpriteAccessor.ALPHA, 2).target(1).start(tweenManager);
 			Tween.set(base, SpriteAccessor.SLIDE).target(500, 120).start(tweenManager);
 			Tween.to(base, SpriteAccessor.SLIDE, 2).target(-70, 120).start(tweenManager);
 			Tween.set(baseEnemy, SpriteAccessor.SLIDE).target(-250, 300).start(tweenManager);
 			Tween.to(baseEnemy, SpriteAccessor.SLIDE, 2).target(350, 300).start(tweenManager);
-			Tween.set(pokemonEnemigo, SpriteAccessor.SLIDE).target(-250, 350).start(tweenManager);
-			Tween.to(pokemonEnemigo, SpriteAccessor.SLIDE, 2).target(400, 350).start(tweenManager);
 		}
 	}
 
