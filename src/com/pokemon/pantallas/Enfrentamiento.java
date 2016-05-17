@@ -14,8 +14,10 @@ import aurelienribon.tweenengine.TweenManager;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -23,6 +25,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
+import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.pokemon.dialogo.Dialogo;
 import com.pokemon.entities.Player;
 import com.pokemon.experience.Experiencia;
@@ -34,7 +41,7 @@ import db.BaseDatos;
 import entrenadores.Entrenador;
 import entrenadores.Jugador;
 
-public class Enfrentamiento extends Pantalla {
+public abstract class Enfrentamiento extends Pantalla {
 
 	protected int fase;
 	protected int vida = 100;
@@ -80,10 +87,17 @@ public class Enfrentamiento extends Pantalla {
 	SpriteBatch batch;
 	Texture tipos, barraVida;
 	TextureRegion[] regionesTipo, regionesTipoSel, barrasVida, barraExp;
-	protected Sprite bg, base, baseEnemy, message, pokemonEnemigo, pokemon, bgOp, bgOpTrans, boton, luchar, mochilaS,
+	protected Sprite base, baseEnemy, message, pokemon, bgOp, bgOpTrans, boton, luchar, mochilaS,
 			pokemonOp, huir, dedo, cajaLuchar, tipo1, tipo2, tipo3, tipo4, cajaPkmn, cajaPkmnpokemonEnemigo, entrenador,
 			protagonista, expBar, level, aprender, cajaAprender;
 
+	protected PerspectiveCamera cam;
+	protected ModelBatch modelBatch;
+	protected Environment environment;
+	protected CameraInputController camController;
+
+	protected InputMultiplexer inputMultiplexer;
+	
 	public Enfrentamiento(ArchivoGuardado ctx, Player player, Pantalla pantalla) {
 		this.setCtx(ctx);
 		jugador = getCtx().jugador;
@@ -91,7 +105,6 @@ public class Enfrentamiento extends Pantalla {
 		this.jugador = jugador;
 		this.player = player;
 		this.pantalla = pantalla;
-		Gdx.input.setInputProcessor(this);
 		generator = new FreeTypeFontGenerator(Gdx.files.internal("res/fuentes/PokemonFont.ttf"));
 		FreeTypeFontParameter parameter = new FreeTypeFontParameter();
 		parameter.size = 35;
@@ -103,61 +116,16 @@ public class Enfrentamiento extends Pantalla {
 	}
 
 	@Override
-	public boolean keyDown(int keycode) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean keyUp(int keycode) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean keyTyped(char character) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean mouseMoved(int screenX, int screenY) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean scrolled(int amount) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public void show() {
-		Gdx.input.setInputProcessor(this);
+		inputMultiplexer = new InputMultiplexer();
+		inputMultiplexer.addProcessor(this);
+		inputMultiplexer.addProcessor(camController);
+		Gdx.input.setInputProcessor(inputMultiplexer);
+		
 		tweenManager = new TweenManager();
 		Tween.registerAccessor(Sprite.class, new SpriteAccessor());
 		batch = new SpriteBatch();
 
-		bg = new Sprite(new Texture("res/imgs/batallas/battlebgForestEve.png"));
 		base = new Sprite(new Texture("res/imgs/batallas/playerbaseForestGrassEve.png"));
 		baseEnemy = new Sprite(new Texture("res/imgs/batallas/enemybaseFieldGrassEve.png"));
 		bgOp = new Sprite(new Texture("res/imgs/batallas/fondoOpciones.png"));
@@ -168,8 +136,6 @@ public class Enfrentamiento extends Pantalla {
 		pokemonOp = new Sprite(new Texture("res/imgs/batallas/pokemon.png"));
 		huir = new Sprite(new Texture("res/imgs/batallas/huir.png"));
 		message = new Sprite(new Texture("res/imgs/batallas/battleMessage.png"));
-		pokemonEnemigo = new Sprite(
-				new Texture("res/imgs/pokemon/" + pkmnpokemonEnemigo.getNombre().toLowerCase() + ".png"));
 		pokemon = new Sprite(new Texture(
 				"res/imgs/pokemon/espalda/" + jugador.getEquipo().get(iPokemon).getNombre().toLowerCase() + ".png"));
 		cajaLuchar = new Sprite(new Texture("res/imgs/batallas/battleFight.png"));
@@ -186,42 +152,6 @@ public class Enfrentamiento extends Pantalla {
 		regionesTipos();
 		regionesTiposSel();
 		getExp();
-	}
-
-	@Override
-	public void render(float delta) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void pause() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void resume() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void hide() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void dispose() {
-		// TODO Auto-generated method stub
-
 	}
 
 	private void updateSelection() {
@@ -412,7 +342,6 @@ public class Enfrentamiento extends Pantalla {
 				dibujarVida(false);
 			}
 		} else {
-			pokemonEnemigo.setAlpha(1);
 			double diff = (actualPs - pkmn.getPs()) / 100.0;
 
 			if (vida > 0) {
@@ -537,18 +466,6 @@ public class Enfrentamiento extends Pantalla {
 
 	}
 
-	public void aparicionPokemonEnemigo(Sprite pokemon) {
-		pokemon.setSize(tamanoPokemon, tamanoPokemon);
-		pokemon.setPosition(xPokemonEnemigo, 350);
-		if (tamanoPokemon < 180) {
-			tamanoPokemon = tamanoPokemon + 8;
-		}
-		if (xPokemonEnemigo > 400) {
-			xPokemonEnemigo = xPokemonEnemigo - 3;
-		}
-
-	}
-
 	public void ataqueRecibido(boolean who) {
 		if (!who) {
 			if (veces > 0) {
@@ -567,7 +484,6 @@ public class Enfrentamiento extends Pantalla {
 		} else {
 			if (veces > 0) {
 				if (intervalo == 0) {
-					pokemonEnemigo.setAlpha(trans);
 					trans = (trans + 1) % 2;
 					intervalo = 4;
 					veces--;
@@ -576,7 +492,6 @@ public class Enfrentamiento extends Pantalla {
 				}
 			} else {
 				trans = 1;
-				pokemonEnemigo.setAlpha(1);
 			}
 		}
 	}

@@ -11,15 +11,12 @@ import core.Combate;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.assets.loaders.ModelLoader;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
@@ -35,8 +32,6 @@ import com.pokemon.entities.Player;
 import com.pokemon.tween.SpriteAccessor;
 import com.pokemon.utilidades.ArchivoGuardado;
 
-import db.BaseDatos;
-import entrenadores.Entrenador;
 import entrenadores.Jugador;
 
 public class CombateEntrenador extends Enfrentamiento {
@@ -48,13 +43,9 @@ public class CombateEntrenador extends Enfrentamiento {
 
 	TextureRegion[] spritesEntrenador;
 	
-	private PerspectiveCamera cam;
-	private Model[] models;
-	private ModelInstance[] instances;
-	private ModelBatch modelBatch;
-	private Environment environment;
-	private CameraInputController camController;
-
+	protected Model[] models;
+	protected ModelInstance[] instances;
+	
 	public CombateEntrenador(ArchivoGuardado ctx, Player player, String idEntrenador, Pantalla pantalla) {
 		super(ctx, player, pantalla);
 		this.fase = 0;
@@ -85,7 +76,6 @@ public class CombateEntrenador extends Enfrentamiento {
         listModels();
         
         camController = new CameraInputController(cam);
-        Gdx.input.setInputProcessor(camController);
 	}
 	
 	private void listModels() {
@@ -97,13 +87,13 @@ public class CombateEntrenador extends Enfrentamiento {
         
         for (int i=0; i<len; i++) {
         	try {
-        		String sDir = "res/Models/" + entrenadorE.getEquipo().get(i);
+        		String sDir = "res/Models/" + entrenadorE.getEquipo().get(i).getNombre();
             	File dir = new File(sDir);
             	File[] files = dir.listFiles();
             	String modelFile = "";
             	for (int j=0; j<files.length && modelFile.equals(""); j++) {
-            		if (files[i].getName().endsWith("obj")) {
-            			modelFile = sDir + "/" + files[i].getName();
+            		if (files[j].getName().endsWith("obj")) {
+            			modelFile = sDir + "/" + files[j].getName();
             			System.out.println(modelFile);
             		}
             	}
@@ -127,15 +117,13 @@ public class CombateEntrenador extends Enfrentamiento {
 		
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClearColor(0, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		
-		render3D();
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
+		render3D();
+		
 		font.setColor(Color.BLACK);
 		tweenManager.update(delta);
 		batch.begin();
-		bg.draw(batch);
-		bg.setSize(720, 540);
 		base.draw(batch);
 
 		baseEnemy.draw(batch);
@@ -145,6 +133,7 @@ public class CombateEntrenador extends Enfrentamiento {
 
 		font.draw(batch, dialogo.getLinea1(), 50, 85);
 		font.draw(batch, dialogo.getLinea2(), 50, 45);
+	
 		if (fase == 0) {
 
 			entrenador.draw(batch);
@@ -152,34 +141,31 @@ public class CombateEntrenador extends Enfrentamiento {
 
 		}
 		/*
-		 * Aparacion de pokemon enemigo
+		 * Aparicion de pokemon enemigo
 		 */
 		if (fase == 1) {
 
-			aparicionPokemonEnemigo(pokemonEnemigo);
 			protagonista.setPosition(100, 120);
 			base.setPosition(-70, 120);
 			baseEnemy.setPosition(350, 300);
 			protagonista.draw(batch);
-			pokemonEnemigo.draw(batch);
-
+			
+			modelBatch.begin(cam);
+			modelBatch.render(instances[0], environment);
+			modelBatch.end();
 		}
 		/*
 		 * Aparicion de pokemon nuestro
 		 */
 		if (fase == 2) {
 			aparicionPokemon(pokemon);
-			pokemonEnemigo.draw(batch);
 			pokemon.draw(batch);
 		}
 		if (fase > 2) {
 			baseEnemy.setPosition(350, 300);
 			base.setPosition(-70, 120);
-			pokemonEnemigo.setSize(185, 185);
 			pokemon.setSize(185, 185);
-			pokemonEnemigo.setPosition(400, 350);
 			pokemon.setPosition(50, 99);
-			pokemonEnemigo.draw(batch);
 			pokemon.draw(batch);
 
 		}
@@ -215,7 +201,6 @@ public class CombateEntrenador extends Enfrentamiento {
 			 * Dialogo Ataque
 			 */
 			pokemon.setAlpha(1);
-			pokemonEnemigo.setAlpha(1);
 			pokemon.draw(batch);
 			dibujarCajasVida();
 			dibujarVidas();
@@ -232,7 +217,6 @@ public class CombateEntrenador extends Enfrentamiento {
 			dibujarPokeballs();
 			dibujarExp();
 			if ((orden && fase == 6) || (!orden && fase == 8)) {
-				pokemonEnemigo.setAlpha(1);
 				if (acierto != -1 && acierto != 1)
 					ataqueRecibido(true);
 				animacionVida(true);
@@ -256,7 +240,6 @@ public class CombateEntrenador extends Enfrentamiento {
 			dibujarPokeballs();
 			dibujarExp();
 			if (pkmnpokemonEnemigo.getPs() <= 0) {
-				pokemonEnemigo.setAlpha(0);
 			} else if (pkmn.getPs() <= 0) {
 				pokemon.setAlpha(0);
 			}
@@ -278,7 +261,6 @@ public class CombateEntrenador extends Enfrentamiento {
 			dibujarExp();
 		}
 		if (fase == 13) {
-			aparicionPokemonEnemigo(pokemonEnemigo);
 		}
 		if (fase == 14) {
 			subirNivel();
@@ -307,22 +289,18 @@ public class CombateEntrenador extends Enfrentamiento {
 	}
 	
 	private void render3D() {
-		modelBatch.begin(cam);
-        modelBatch.render(instances[actual], environment);
-        modelBatch.end();
+			modelBatch.begin(cam);
+	        modelBatch.render(instances[actual], environment);
+	        modelBatch.end();
 	}
 
 	@Override
 	public void show() {
 		super.show();
 		entrenador = new Sprite(new Texture("res/imgs/entrenadores/" + idEntrenador + ".png"));
-		pokemonEnemigo = new Sprite(
-				new Texture("res/imgs/pokemon/" + entrenadorE.getEquipo().get(iPokemonEnemigo).getNombre() + ".png"));
 		protagonista = new Sprite(new Texture("res/imgs/entrenadores/prota.png"));
 		protagonista.setSize(150, 240);
 		if (fase < 1) {
-			Tween.set(bg, SpriteAccessor.ALPHA).target(0).start(tweenManager);
-			Tween.to(bg, SpriteAccessor.ALPHA, 2).target(1).start(tweenManager);
 			Tween.set(base, SpriteAccessor.SLIDE).target(500, 120).start(tweenManager);
 			Tween.to(base, SpriteAccessor.SLIDE, 2).target(-70, 120).start(tweenManager);
 			Tween.set(protagonista, SpriteAccessor.SLIDE).target(500, 120).start(tweenManager);
@@ -820,8 +798,6 @@ public class CombateEntrenador extends Enfrentamiento {
 		iPokemonEnemigo++;
 		tamanoPokemon = 1;
 		pkmnpokemonEnemigo = entrenadorE.getPokemon(iPokemonEnemigo);
-		pokemonEnemigo = new Sprite(
-				new Texture("res/imgs/pokemon/" + pkmnpokemonEnemigo.getNombre().toLowerCase() + ".png"));
 		String[] frase = { "� " + nombre.toUpperCase() + " utiliza a "
 				+ entrenadorE.getPokemon(iPokemonEnemigo).getNombre() + "!" };
 		fase = 13;
