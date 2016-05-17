@@ -248,7 +248,7 @@ public class CombateP extends Enfrentamiento {
 			Tween.set(baseEnemy, SpriteAccessor.SLIDE).target(-250, 300).start(tweenManager);
 			Tween.to(baseEnemy, SpriteAccessor.SLIDE, 2).target(350, 300).start(tweenManager);
 		}
-	}
+	} 
 
 	@Override
 	public boolean keyDown(int keycode) {
