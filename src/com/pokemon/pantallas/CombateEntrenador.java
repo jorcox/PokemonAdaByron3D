@@ -285,8 +285,9 @@ public class CombateEntrenador extends Enfrentamiento {
 
 	@Override
 	public void show() {
-		super.show();
 		create3D();
+		super.show();
+		
 		entrenador = new Sprite(new Texture("res/imgs/entrenadores/" + idEntrenador + ".png"));
 		protagonista = new Sprite(new Texture("res/imgs/entrenadores/prota.png"));
 		protagonista.setSize(150, 240);

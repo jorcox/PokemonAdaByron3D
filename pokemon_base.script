@@ -600,7 +600,7 @@ INSERT INTO MOVIMIENTOS VALUES(543,'BUBBLEBEAM','Rayo Burbuja',65,'WATER','Speci
 INSERT INTO MOVIMIENTOS VALUES(544,'OCTAZOOKA','Pulpoca\u00f1\u00f3n',65,'WATER','Special',85,10,'Dispara tinta a la cara. Puede bajar la Precisi\u00f3n.')
 INSERT INTO MOVIMIENTOS VALUES(545,'WATERPULSE','Hidropulso',60,'WATER','Special',100,20,'Ataca con un potente chorro de agua. Puede confundir al objetivo.')
 INSERT INTO MOVIMIENTOS VALUES(546,'WATERPLEDGE','Voto Agua',50,'WATER','Special',100,10,'"Ataca con columnas de agua. Si se combina con un ataque de fuego')
-INSERT INTO MOVIMIENTOS VALUES(547,'AQUAJET','Aqua Jet',40,'WATER','Physical',100,20,'Ataque r\u00e1pido que permite golpear en primer lugar.')
+INSERT INTO MOVIMIENTOS VALUES(547,'AQUAJET','Acua Jet',40,'WATER','Physical',100,20,'Ataque r\u00e1pido que permite golpear en primer lugar.')
 INSERT INTO MOVIMIENTOS VALUES(548,'WATERGUN','Pistola Agua',45,'WATER','Special',100,25,'Ataca disparando agua con gran potencia.')
 INSERT INTO MOVIMIENTOS VALUES(549,'CLAMP','Tenaza',35,'WATER','Physical',85,10,'Atrapa y atenaza con fuerza durante cuatro o cinco turnos.')
 INSERT INTO MOVIMIENTOS VALUES(550,'WHIRLPOOL','Torbellino',35,'WATER','Special',85,15,'Una tromba de agua atrapa al objetivo durante cuatro o cinco turnos.')

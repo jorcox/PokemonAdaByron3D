@@ -238,8 +238,9 @@ public class CombateP extends Enfrentamiento {
 
 	@Override
 	public void show() {
-		super.show();
 		create3D();
+		super.show();
+		
 		if (show) {
 			show = false;
 			Tween.set(base, SpriteAccessor.SLIDE).target(500, 120).start(tweenManager);
