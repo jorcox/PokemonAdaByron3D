@@ -36,6 +36,8 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 import com.pokemon.dialogo.Dialogo;
 import com.pokemon.entities.Player;
 import com.pokemon.experience.Experiencia;
@@ -653,6 +655,15 @@ public abstract class Enfrentamiento extends Pantalla {
 
 	public void render3DPokemon() {
 		modelBatch.begin(cam);
+		Matrix4 tr = new Matrix4();
+        tr.setToTranslation(0, 0, 35);
+        Matrix4 rt = new Matrix4();
+        rt.setToRotation(Vector3.X, 90);
+        Matrix4 rt2 = new Matrix4();
+        rt2.setToRotation(Vector3.Z, 180);
+        tr = tr.mul(rt);
+        tr = tr.mul(rt2);
+        pokemonInstance.transform=tr;
 		modelBatch.render(pokemonInstance, environment);
 		modelBatch.end();
 	}
