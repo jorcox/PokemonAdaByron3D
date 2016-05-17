@@ -164,7 +164,7 @@ public abstract class Enfrentamiento extends Pantalla {
 		regionesTipos();
 		regionesTiposSel();
 		getExp();
-		obtainModelPokemon();
+		obtainModelPokemon(); 
 	}
 
 	private void updateSelection() {
