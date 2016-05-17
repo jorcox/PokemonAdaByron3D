@@ -14,6 +14,7 @@ import aurelienribon.tweenengine.TweenManager;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
@@ -40,7 +41,7 @@ import db.BaseDatos;
 import entrenadores.Entrenador;
 import entrenadores.Jugador;
 
-public class Enfrentamiento extends Pantalla {
+public abstract class Enfrentamiento extends Pantalla {
 
 	protected int fase;
 	protected int vida = 100;
@@ -97,6 +98,7 @@ public class Enfrentamiento extends Pantalla {
 	protected Environment environment;
 	protected CameraInputController camController;
 
+	protected InputMultiplexer inputMultiplexer;
 	
 	public Enfrentamiento(ArchivoGuardado ctx, Player player, Pantalla pantalla) {
 		this.setCtx(ctx);
@@ -105,7 +107,6 @@ public class Enfrentamiento extends Pantalla {
 		this.jugador = jugador;
 		this.player = player;
 		this.pantalla = pantalla;
-		Gdx.input.setInputProcessor(this);
 		generator = new FreeTypeFontGenerator(Gdx.files.internal("res/fuentes/PokemonFont.ttf"));
 		FreeTypeFontParameter parameter = new FreeTypeFontParameter();
 		parameter.size = 35;
@@ -117,56 +118,12 @@ public class Enfrentamiento extends Pantalla {
 	}
 
 	@Override
-	public boolean keyDown(int keycode) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean keyUp(int keycode) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean keyTyped(char character) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean mouseMoved(int screenX, int screenY) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean scrolled(int amount) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	public void show() {
-		Gdx.input.setInputProcessor(this);
+		inputMultiplexer = new InputMultiplexer();
+		inputMultiplexer.addProcessor(this);
+		inputMultiplexer.addProcessor(camController);
+		Gdx.input.setInputProcessor(inputMultiplexer);
+		
 		tweenManager = new TweenManager();
 		Tween.registerAccessor(Sprite.class, new SpriteAccessor());
 		batch = new SpriteBatch();
@@ -197,42 +154,6 @@ public class Enfrentamiento extends Pantalla {
 		regionesTipos();
 		regionesTiposSel();
 		getExp();
-	}
-
-	@Override
-	public void render(float delta) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void pause() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void resume() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void hide() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void dispose() {
-		// TODO Auto-generated method stub
-
 	}
 
 	private void updateSelection() {

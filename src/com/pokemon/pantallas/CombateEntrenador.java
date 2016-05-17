@@ -11,15 +11,12 @@ import core.Combate;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.assets.loaders.ModelLoader;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.Material;
@@ -35,8 +32,6 @@ import com.pokemon.entities.Player;
 import com.pokemon.tween.SpriteAccessor;
 import com.pokemon.utilidades.ArchivoGuardado;
 
-import db.BaseDatos;
-import entrenadores.Entrenador;
 import entrenadores.Jugador;
 
 public class CombateEntrenador extends Enfrentamiento {
@@ -78,7 +73,6 @@ public class CombateEntrenador extends Enfrentamiento {
         listModels();
         
         camController = new CameraInputController(cam);
-        Gdx.input.setInputProcessor(camController);
 	}
 	
 	private void listModels() {
@@ -89,26 +83,26 @@ public class CombateEntrenador extends Enfrentamiento {
         ObjLoader loader = new ObjLoader();
         
         for (int i=0; i<len; i++) {
-        	/*try {
-        		String sDir = "res/Models/" + entrenadorE.getEquipo().get(i);
+        	try {
+        		String sDir = "res/Models/" + entrenadorE.getEquipo().get(i).getNombre();
             	File dir = new File(sDir);
             	File[] files = dir.listFiles();
             	String modelFile = "";
             	for (int j=0; j<files.length && modelFile.equals(""); j++) {
-            		if (files[i].getName().endsWith("obj")) {
-            			modelFile = sDir + "/" + files[i].getName();
+            		if (files[j].getName().endsWith("obj")) {
+            			modelFile = sDir + "/" + files[j].getName();
             			System.out.println(modelFile);
             		}
             	}
             	models[i] = loader.loadModel(Gdx.files.internal(modelFile), true);
                 instances[i] = new ModelInstance(models[i]);
-        	} catch(Exception e) {*/
+        	} catch(Exception e) {
         		/* Si peta al intentar crear el modelo, pone un cubo verde */
         		models[i] = new ModelBuilder().createBox(5f, 5f, 5f, 
         	            new Material(ColorAttribute.createDiffuse(Color.GREEN)),
         	            Usage.Position | Usage.Normal);
         		instances[i] = new ModelInstance(models[i]);
-        	//}
+        	}
         	
         }
         
@@ -120,7 +114,7 @@ public class CombateEntrenador extends Enfrentamiento {
 		
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClearColor(0, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		
 		render3D();
 
