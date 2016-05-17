@@ -127,6 +127,7 @@ public abstract class Enfrentamiento extends Pantalla {
 
 	@Override
 	public void show() {
+		obtainModelPokemon(); 
 		inputMultiplexer = new InputMultiplexer();
 		inputMultiplexer.addProcessor(this);
 		inputMultiplexer.addProcessor(camController);
@@ -164,7 +165,7 @@ public abstract class Enfrentamiento extends Pantalla {
 		regionesTipos();
 		regionesTiposSel();
 		getExp();
-		obtainModelPokemon(); 
+		
 	}
 
 	private void updateSelection() {
