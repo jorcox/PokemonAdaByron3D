@@ -119,7 +119,7 @@ public class CombateEntrenador extends Enfrentamiento {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-		render3D();
+		//render3D();
 		
 		font.setColor(Color.BLACK);
 		tweenManager.update(delta);
@@ -150,23 +150,17 @@ public class CombateEntrenador extends Enfrentamiento {
 			baseEnemy.setPosition(350, 300);
 			protagonista.draw(batch);
 			
-			modelBatch.begin(cam);
-			modelBatch.render(instances[0], environment);
-			modelBatch.end();
+			/*modelBatch.begin(cam);
+			modelBatch.render(instances[iPokemonEnemigo], environment);
+			modelBatch.end();*/
 		}
 		/*
 		 * Aparicion de pokemon nuestro
 		 */
-		if (fase == 2) {
-			aparicionPokemon(pokemon);
-			pokemon.draw(batch);
-		}
 		if (fase > 2) {
+			
 			baseEnemy.setPosition(350, 300);
 			base.setPosition(-70, 120);
-			pokemon.setSize(185, 185);
-			pokemon.setPosition(50, 99);
-			pokemon.draw(batch);
 
 		}
 
@@ -174,7 +168,6 @@ public class CombateEntrenador extends Enfrentamiento {
 		 * Decidir accion (Luchar, Mochila, Pokemon, Huir)
 		 */
 		if (fase == 3) {
-			pokemon.draw(batch);
 			dibujarMenuCombate();
 			dibujarCajasVida();
 			dibujarVidas();
@@ -185,7 +178,6 @@ public class CombateEntrenador extends Enfrentamiento {
 		 * Decisiï¿½n de ataque
 		 */
 		if (fase == 4) {
-			pokemon.draw(batch);
 			cajaLuchar.setSize(720, 120);
 			cajaLuchar.draw(batch);
 			dibujarCajasVida();
@@ -200,8 +192,6 @@ public class CombateEntrenador extends Enfrentamiento {
 			/*
 			 * Dialogo Ataque
 			 */
-			pokemon.setAlpha(1);
-			pokemon.draw(batch);
 			dibujarCajasVida();
 			dibujarVidas();
 			dibujarPokeballs();
@@ -211,7 +201,6 @@ public class CombateEntrenador extends Enfrentamiento {
 			/*
 			 * Ataque, vida y comprobaciï¿½n
 			 */
-			pokemon.draw(batch);
 			dibujarCajasVida();
 			dibujarVidas();
 			dibujarPokeballs();
@@ -222,7 +211,6 @@ public class CombateEntrenador extends Enfrentamiento {
 				animacionVida(true);
 				dibujarVida(true);
 			} else {
-				pokemon.setAlpha(1);
 				if (acierto != -1 && acierto != 1)
 					ataqueRecibido(false);
 				animacionVida(false);
@@ -233,29 +221,24 @@ public class CombateEntrenador extends Enfrentamiento {
 			/*
 			 * Dialogo muerte o fase = 3
 			 */
-			pokemon.setAlpha(1);
-			pokemon.draw(batch);
 			dibujarCajasVida();
 			dibujarVidas();
 			dibujarPokeballs();
 			dibujarExp();
 			if (pkmnpokemonEnemigo.getPs() <= 0) {
 			} else if (pkmn.getPs() <= 0) {
-				pokemon.setAlpha(0);
 			}
 		}
 		/*
 		 * Mensajes
 		 */
 		if (fase == 10 || fase == 11) {
-			pokemon.draw(batch);
 			dibujarCajasVida();
 			dibujarVidas();
 			dibujarPokeballs();
 			dibujarExp();
 		}
 		if (fase == 12) {
-			pokemon.draw(batch);
 			dibujarCajasVida();
 			dibujarVidas();
 			dibujarExp();
@@ -286,11 +269,17 @@ public class CombateEntrenador extends Enfrentamiento {
 			}
 		}
 		batch.end();
+		if(fase>0){
+			render3D();
+		}
+		if(fase>1){
+			render3DPokemon();
+		}
 	}
 	
 	private void render3D() {
 			modelBatch.begin(cam);
-	        modelBatch.render(instances[actual], environment);
+	        modelBatch.render(instances[iPokemonEnemigo], environment);
 	        modelBatch.end();
 	}
 
@@ -798,7 +787,7 @@ public class CombateEntrenador extends Enfrentamiento {
 		iPokemonEnemigo++;
 		tamanoPokemon = 1;
 		pkmnpokemonEnemigo = entrenadorE.getPokemon(iPokemonEnemigo);
-		String[] frase = { "ï¿½ " + nombre.toUpperCase() + " utiliza a "
+		String[] frase = { "¡ " + nombre.toUpperCase() + " utiliza a "
 				+ entrenadorE.getPokemon(iPokemonEnemigo).getNombre() + "!" };
 		fase = 13;
 		orden = combate.getVelocidad(iPokemon);

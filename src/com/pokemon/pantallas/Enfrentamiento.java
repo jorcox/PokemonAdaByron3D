@@ -4,6 +4,7 @@ import habilidad.Habilidad;
 import mapas.Posicion;
 import mapas.PosicionIniciales;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +20,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -26,10 +28,14 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.pokemon.dialogo.Dialogo;
 import com.pokemon.entities.Player;
 import com.pokemon.experience.Experiencia;
@@ -58,7 +64,7 @@ public abstract class Enfrentamiento extends Pantalla {
 	protected int xPokemonEnemigo = 450;
 	protected Habilidad[] habilidades;
 
-	protected TweenManager tweenManager; 
+	protected TweenManager tweenManager;
 	protected Combate combate;
 	protected Entrenador en;
 	protected boolean orden;
@@ -87,17 +93,19 @@ public abstract class Enfrentamiento extends Pantalla {
 	SpriteBatch batch;
 	Texture tipos, barraVida;
 	TextureRegion[] regionesTipo, regionesTipoSel, barrasVida, barraExp;
-	protected Sprite base, baseEnemy, message, pokemon, bgOp, bgOpTrans, boton, luchar, mochilaS,
-			pokemonOp, huir, dedo, cajaLuchar, tipo1, tipo2, tipo3, tipo4, cajaPkmn, cajaPkmnpokemonEnemigo, entrenador,
-			protagonista, expBar, level, aprender, cajaAprender;
+	protected Sprite base, baseEnemy, message, bgOp, bgOpTrans, boton, luchar, mochilaS, pokemonOp, huir, dedo,
+			cajaLuchar, tipo1, tipo2, tipo3, tipo4, cajaPkmn, cajaPkmnpokemonEnemigo, entrenador, protagonista, expBar,
+			level, aprender, cajaAprender;
 
 	protected PerspectiveCamera cam;
 	protected ModelBatch modelBatch;
 	protected Environment environment;
 	protected CameraInputController camController;
+	Model pokemonModel;
+	ModelInstance pokemonInstance;
 
 	protected InputMultiplexer inputMultiplexer;
-	
+
 	public Enfrentamiento(ArchivoGuardado ctx, Player player, Pantalla pantalla) {
 		this.setCtx(ctx);
 		jugador = getCtx().jugador;
@@ -121,7 +129,7 @@ public abstract class Enfrentamiento extends Pantalla {
 		inputMultiplexer.addProcessor(this);
 		inputMultiplexer.addProcessor(camController);
 		Gdx.input.setInputProcessor(inputMultiplexer);
-		
+
 		tweenManager = new TweenManager();
 		Tween.registerAccessor(Sprite.class, new SpriteAccessor());
 		batch = new SpriteBatch();
@@ -136,9 +144,11 @@ public abstract class Enfrentamiento extends Pantalla {
 		pokemonOp = new Sprite(new Texture("res/imgs/batallas/pokemon.png"));
 		huir = new Sprite(new Texture("res/imgs/batallas/huir.png"));
 		message = new Sprite(new Texture("res/imgs/batallas/battleMessage.png"));
-		pokemon = new Sprite(new Texture(
-				"res/imgs/pokemon/espalda/" + jugador.getEquipo().get(iPokemon).getNombre().toLowerCase() + ".png"));
-		cajaLuchar = new Sprite(new Texture("res/imgs/batallas/battleFight.png"));
+		/*
+		 * pokemon = new Sprite(new Texture( "res/imgs/pokemon/espalda/" +
+		 * jugador.getEquipo().get(iPokemon).getNombre().toLowerCase() +
+		 * ".png"));
+		 */cajaLuchar = new Sprite(new Texture("res/imgs/batallas/battleFight.png"));
 		tipos = new Texture("res/imgs/batallas/battleFightButtons.png");
 		barraVida = new Texture("res/imgs/batallas/hpbars.png");
 		cajaPkmn = new Sprite(new Texture("res/imgs/batallas/cajaPkmn.png"));
@@ -152,6 +162,7 @@ public abstract class Enfrentamiento extends Pantalla {
 		regionesTipos();
 		regionesTiposSel();
 		getExp();
+		obtainModelPokemon();
 	}
 
 	private void updateSelection() {
@@ -330,7 +341,7 @@ public abstract class Enfrentamiento extends Pantalla {
 	public void animacionVida(boolean who) {
 
 		if (who) {
-			pokemon.setAlpha(1);
+			// pokemon.setAlpha(1);
 			double diff = (actualPsS - pkmnpokemonEnemigo.getPs()) / 100.0;
 			if (vidaS > 0) {
 				batch.draw(barrasVida[0], 111, 416,
@@ -395,19 +406,19 @@ public abstract class Enfrentamiento extends Pantalla {
 					if (acierto == -1) {
 						// Ataque fallido
 						String[] frase = {
-								"Â¡" + jugador.getEquipo().get(iPokemon).getNombre() + " fallÃ³! Vaya mierdas...", "" };
+								"¡" + jugador.getEquipo().get(iPokemon).getNombre() + " fallÃ³! Vaya mierdas...", "" };
 						dialogo.setFrases(frase);
 					} else if (acierto == 1) {
 						// Ataque no afecta
-						String[] frase = { "Â¡El ataque no afecta al enemigo! Espabila", "" };
+						String[] frase = { "¡El ataque no afecta al enemigo! Espabila", "" };
 						dialogo.setFrases(frase);
 					} else if (acierto == 2) {
 						// Ataque no muy efectivo
-						String[] frase = { "Â¡El ataque no es muy efectivo!", "" };
+						String[] frase = { "¡El ataque no es muy efectivo!", "" };
 						dialogo.setFrases(frase);
 					} else if (acierto == 3) {
 						// Ataque muy efectivo
-						String[] frase = { "Â¡El ataque es mega efectivo pavo!", "" };
+						String[] frase = { "¡El ataque es mega efectivo pavo!", "" };
 						dialogo.setFrases(frase);
 					}
 				}
@@ -425,16 +436,16 @@ public abstract class Enfrentamiento extends Pantalla {
 				} else {
 					fase = 11;
 					if (acierto == -1) {
-						String[] frase = { "Â¡" + pkmnpokemonEnemigo.getNombre() + " fallÃ³! Vaya mierdas...", "" };
+						String[] frase = { "¡" + pkmnpokemonEnemigo.getNombre() + " fallÃ³! Vaya mierdas...", "" };
 						dialogo.setFrases(frase);
 					} else if (acierto == 1) {
-						String[] frase = { "Â¡El ataque no afecta al enemigo! Espabila", "" };
+						String[] frase = { "¡El ataque no afecta al enemigo! Espabila", "" };
 						dialogo.setFrases(frase);
 					} else if (acierto == 2) {
-						String[] frase = { "Â¡El ataque no es muy efectivo!", "" };
+						String[] frase = { "¡El ataque no es muy efectivo!", "" };
 						dialogo.setFrases(frase);
 					} else if (acierto == 3) {
-						String[] frase = { "Â¡El ataque es mega efectivo pavo!", "" };
+						String[] frase = { "¡El ataque es mega efectivo pavo!", "" };
 						dialogo.setFrases(frase);
 					}
 				}
@@ -444,12 +455,12 @@ public abstract class Enfrentamiento extends Pantalla {
 	}
 
 	public String[] frasesAtaque(Pokemon pokemon, int id) {
-		String[] frase = { "Â¡" + pokemon.getNombre() + " uso " + pokemon.getHabilidad(id).getNombre() + "!", "" };
+		String[] frase = { "¡" + pokemon.getNombre() + " uso " + pokemon.getHabilidad(id).getNombre() + "!", "" };
 		return frase;
 	}
 
 	public String[] frasesExperiencia(boolean trainer) {
-		String[] frase = { "Â¡" + pkmn.getNombre() + " ganï¿½ " + gainExperience(trainer, pkmnpokemonEnemigo.getNivel())
+		String[] frase = { "¡" + pkmn.getNombre() + " ganï¿½ " + gainExperience(trainer, pkmnpokemonEnemigo.getNivel())
 				+ " puntos de EXP.!", "" };
 		return frase;
 	}
@@ -470,7 +481,7 @@ public abstract class Enfrentamiento extends Pantalla {
 		if (!who) {
 			if (veces > 0) {
 				if (intervalo == 0) {
-					pokemon.setAlpha(trans);
+					// pokemon.setAlpha(trans);
 					trans = (trans + 1) % 2;
 					intervalo = 4;
 					veces--;
@@ -479,7 +490,7 @@ public abstract class Enfrentamiento extends Pantalla {
 				}
 			} else {
 				trans = 1;
-				pokemon.setAlpha(1);
+				// pokemon.setAlpha(1);
 			}
 		} else {
 			if (veces > 0) {
@@ -605,15 +616,45 @@ public abstract class Enfrentamiento extends Pantalla {
 
 	public void combatePerdido() {
 		HashMap<String, Posicion> map = new PosicionIniciales().getHashMap();
-		Posicion pos=map.get(getCtx().map);
+		Posicion pos = map.get(getCtx().map);
 		Jugador aux = Jugador.nuevoJugador(jugador);
 		((Game) Gdx.app.getApplicationListener()).setScreen(pantalla);
 		pantalla.getCtx().jugador = aux;
-		pantalla.getCtx().x=pos.getX();
-		pantalla.getCtx().y=pos.getY();
-		for(Pokemon poke :getCtx().jugador.getEquipo()){
+		pantalla.getCtx().x = pos.getX();
+		pantalla.getCtx().y = pos.getY();
+		for (Pokemon poke : getCtx().jugador.getEquipo()) {
 			poke.sanar();
 		}
+	}
+
+	private void obtainModelPokemon() {
+		modelBatch = new ModelBatch();
+		try {
+			ObjLoader loader = new ObjLoader();
+			String sDir = "res/Models/" + jugador.getEquipo().get(iPokemon).getNombre();
+			File dir = new File(sDir);
+			File[] files = dir.listFiles();
+			String modelFile = "";
+			for (int j = 0; j < files.length && modelFile.equals(""); j++) {
+				if (files[j].getName().endsWith("obj")) {
+					modelFile = sDir + "/" + files[j].getName();
+					System.out.println(modelFile);
+				}
+			}
+			pokemonModel = loader.loadModel(Gdx.files.internal(modelFile), true);
+			pokemonInstance = new ModelInstance(pokemonModel);
+		} catch (Exception e) {
+			/* Si peta al intentar crear el modelo, pone un cubo verde */
+			pokemonModel = new ModelBuilder().createBox(5f, 5f, 5f,
+					new Material(ColorAttribute.createDiffuse(Color.GREEN)), Usage.Position | Usage.Normal);
+			pokemonInstance = new ModelInstance(pokemonModel);
+		}
+	}
+
+	public void render3DPokemon() {
+		modelBatch.begin(cam);
+		modelBatch.render(pokemonInstance, environment);
+		modelBatch.end();
 	}
 
 }
