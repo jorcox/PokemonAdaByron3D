@@ -124,24 +124,15 @@ public class CombateP extends Enfrentamiento {
 		/*
 		 * Aparacion de pokemon pokemonEnemigo
 		 */
-		if (fase == 2) {
-
-			aparicionPokemon(pokemon);
-			pokemon.draw(batch);
-		}
 		if (fase > 2) {
 			baseEnemy.setPosition(350, 300);
 			base.setPosition(-70, 120);
-			pokemon.setSize(tamanoPokemon, tamanoPokemon);
-			pokemon.setPosition(50, 99);
-			pokemon.draw(batch);
 
 		}
 		/*
 		 * Decidir accion (Luchar, Mochila, Pokemon, Huir)
 		 */
 		if (fase == 3) {
-			pokemon.draw(batch);
 			dibujarMenuCombate();
 			dibujarCajasVida();
 			dibujarVidas();
@@ -151,7 +142,6 @@ public class CombateP extends Enfrentamiento {
 		 * Decisi�n de ataque
 		 */
 		if (fase == 4) {
-			pokemon.draw(batch);
 			cajaLuchar.setSize(720, 120);
 			cajaLuchar.draw(batch);
 			dibujarCajasVida();
@@ -165,8 +155,6 @@ public class CombateP extends Enfrentamiento {
 			/*
 			 * Dialogo Ataque
 			 */
-			pokemon.setAlpha(1);
-			pokemon.draw(batch);
 			dibujarCajasVida();
 			dibujarVidas();
 			dibujarExp();
@@ -175,7 +163,6 @@ public class CombateP extends Enfrentamiento {
 			/*
 			 * Ataque, vida y comprobaci�n
 			 */
-			pokemon.draw(batch);
 			dibujarCajasVida();
 			dibujarExp();
 			dibujarVidas();
@@ -185,7 +172,6 @@ public class CombateP extends Enfrentamiento {
 				animacionVida(true);
 				dibujarVida(true);
 			} else {
-				pokemon.setAlpha(1);
 				if (acierto != -1 && acierto != 1)
 					ataqueRecibido(false);
 				animacionVida(false);
@@ -196,24 +182,19 @@ public class CombateP extends Enfrentamiento {
 			/*
 			 * Dialogo muerte o fase = 3
 			 */
-			pokemon.setAlpha(1);
-			pokemon.draw(batch);
 			dibujarCajasVida();
 			dibujarExp();
 			dibujarVidas();
 			if (pkmnpokemonEnemigo.getPs() <= 0) {
 			} else if (pkmn.getPs() <= 0) {
-				pokemon.setAlpha(0);
 			}
 		}
 		if (fase == 10 || fase == 11) {
-			pokemon.draw(batch);
 			dibujarCajasVida();
 			dibujarVidas();
 			dibujarExp();
 		}
 		if (fase == 12) {
-			pokemon.draw(batch);
 			dibujarCajasVida();
 			dibujarVidas();
 			dibujarExp();
@@ -246,6 +227,7 @@ public class CombateP extends Enfrentamiento {
 			lanzamientoBall();
 		}
 		batch.end();
+		render3DPokemon();
 	}
 	
 	private void render3D() {
