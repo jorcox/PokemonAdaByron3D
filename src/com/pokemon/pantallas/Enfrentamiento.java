@@ -17,6 +17,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -665,8 +666,27 @@ public abstract class Enfrentamiento extends Pantalla {
         tr = tr.mul(rt);
         tr = tr.mul(rt2);
         pokemonInstance.transform=tr;
-		modelBatch.render(pokemonInstance, environment);
+        renderInstance(pokemonInstance);
 		modelBatch.end();
+	}
+	
+	/**
+	 * Renderiza un objeto, previa comprobacion de frustum.
+	 */
+	protected void renderInstance(ModelInstance instance) {
+		if (isVisible(cam, pokemonInstance)) {
+        	modelBatch.render(pokemonInstance, environment);
+        }
+	}
+	
+	/**
+	 * Frustum culling.
+	 * Checks if an instance is inside the frustum or not.
+	 */
+	protected Vector3 position = new Vector3();
+	protected boolean isVisible(final Camera cam, final ModelInstance instance) {
+		instance.transform.getTranslation(position);
+		return cam.frustum.pointInFrustum(position);
 	}
 
 }
