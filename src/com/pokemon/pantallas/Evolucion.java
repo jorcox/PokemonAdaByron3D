@@ -219,7 +219,7 @@ public class Evolucion extends Pantalla {
 
 	public void setJugador() {
 		jugador = new Jugador("Sara", false);
-		equipoPokemon();
+		//equipoPokemon();
 	}
 
 	public void equipoPokemon() {
