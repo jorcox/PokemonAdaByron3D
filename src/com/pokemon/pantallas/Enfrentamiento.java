@@ -166,7 +166,7 @@ public abstract class Enfrentamiento extends Pantalla {
 		fontC.setColor(Color.BLACK);
 		regionesTipos();
 		regionesTiposSel();
-		getExp();
+		getExp(); 
 
 	}
 
