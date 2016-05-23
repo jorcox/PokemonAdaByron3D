@@ -10,14 +10,23 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
+import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
+import com.badlogic.gdx.graphics.g3d.decals.Decal;
+import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
@@ -43,7 +52,6 @@ public class Play extends Pantalla {
 
 	public transient TiledMap map;
 	private transient TextureMapObjectRenderer renderer;
-	private transient OrthographicCamera camera;
 	private transient SpriteBatch batch;
 	private transient BitmapFont font;
 	private transient FreeTypeFontGenerator generator;
@@ -74,6 +82,13 @@ public class Play extends Pantalla {
 	private boolean primeraVez = true;
 	/* String del mapa actual */
 	private String mapa;
+	
+	private Decal decalMapa;
+	private DecalBatch decalBatch;
+	
+	public PerspectiveCamera cam;
+	public Environment environment;
+	public CameraInputController camController;
 
 	public Play(ArchivoGuardado ctx) {
 		this.setCtx(ctx);
@@ -86,6 +101,26 @@ public class Play extends Pantalla {
 	}
 
 	public Play(ArchivoGuardado ctx, float x, float y, int lastPressed, String mapa) {
+		environment = new Environment();
+		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
+		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
+		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1000f, -800f, -200f));
+
+		cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		cam.position.set(0f, 30f, 0f);
+		cam.lookAt(0, 0, 0);
+		cam.near = 1f;
+		cam.far = 300f;
+		cam.update();
+		
+		mapa = "res/imgs/mapas/" + mapa;
+		
+		decalBatch = new DecalBatch(new CameraGroupStrategy(cam));
+		decalMapa = Decal.newDecal(10, 10, new TextureRegion(new Texture(mapa)));
+		decalMapa.setPosition(0, 0, 0);
+		decalMapa.setDimensions(35, 35);
+		decalMapa.rotateX(270);
+		
 		ctx.x = x;
 		ctx.y = y;
 		ctx.lastPressed = lastPressed;
@@ -104,111 +139,7 @@ public class Play extends Pantalla {
 
 	@Override
 	public void show() {
- 		tweenManager = new TweenManager();
-
-		TmxMapLoader loader = new TmxMapLoader();
-
-		map = loader.load("res/mapas/" + mapa);
-
-		renderer = new TextureMapObjectRenderer(map);
-
-		camera = new OrthographicCamera();
-
 		playerAtlas = new TextureAtlas("res/imgs/entrenadoresWorld/protagonista.pack");
-
-		if (primeraVez) {
-			/* Carga de NPCs */
-			MapLayer npcLayer = map.getLayers().get("Personajes");
-			for (MapObject o : npcLayer.getObjects()) {
-				TextureMapObject t = (TextureMapObject) o;
-				/* Carga de atributos */
-				String dirVista = (String) t.getProperties().get("dir");
-				int disVista = Integer.parseInt((String) t.getProperties().get("dis"));
-				String dialogoCode = (String) t.getProperties().get("dialogo");				
-				boolean combate = Boolean.parseBoolean((String) t.getProperties().get("combate"));
-				boolean activo = true;
-				if(t.getProperties().containsKey("activo")){
-					activo = Boolean.parseBoolean((String) t.getProperties().get("activo"));
-				}
-				boolean volver = t.getProperties().containsKey("volver");
-				
-				TextureAtlas personajePack = new TextureAtlas(
-						"res/imgs/entrenadoresWorld/" + (String) t.getProperties().get("pack") + ".pack");
-				/* Creación del los NPCs */
-				NPC npc = new NPC(personajePack, new Animation(1 / 10f, playerAtlas.findRegions(dirVista)), dirVista,
-						disVista, this, dialogoCode, combate);
-				npc.setPosition(t.getX(), t.getY());
-				//t.getTextureRegion().getTexture().getHeight();
-				//t.getTextureRegion().getTexture().get
-				npc.setPosicionOriginal(t.getX(), t.getY());
-				if(!t.getProperties().containsKey("ancho")){
-					npc.setScale((float) 1.5, 1);
-				}				
-				npc.setActivo(activo);
-				npc.setVolver(volver);
-				npcs.add(npc);
-			}			
-			for (MapObject obj : map.getLayers().get("Objetos").getObjects()){
-				objetos.add(new ObjetoMapa(obj));
-			}
-		}
-		/*
-		 * Caso de recien cargado
-		 */
-		if (!npcs.isEmpty() && npcs.get(0).getCara() == null) {
-			/* Recarga de NPCs */
-			MapLayer npcLayer = map.getLayers().get("Personajes");
-			for (MapObject o : npcLayer.getObjects()) {
-				TextureMapObject t = (TextureMapObject) o;
-				String dirVista = (String) t.getProperties().get("dir");
-				boolean combate = Boolean.parseBoolean((String) t.getProperties().get("combate"));
-				int disVista = Integer.parseInt((String) t.getProperties().get("dis"));
-				String dialogoCode = (String) t.getProperties().get("dialogo");
-				TextureAtlas personajePack = new TextureAtlas(
-						"res/imgs/entrenadoresWorld/" + (String) t.getProperties().get("pack") + ".pack");
-				NPC npc = new NPC(personajePack, new Animation(1 / 10f, playerAtlas.findRegions(dirVista)), dirVista,
-						disVista, this, dialogoCode, combate);
-				if(!t.getProperties().containsKey("ancho")){
-					npc.setScale((float) 1.5, 1);
-				}	
-				for (NPC npcAlmacenado : npcs) {
-					if (npc.getDialogoCode().equals(npcAlmacenado.getDialogoCode())) {
-						npcs.remove(npcs.indexOf(npcAlmacenado));
-						npc.setPosition(npcAlmacenado.getX(), npcAlmacenado.getY());
-						npc.setActivo(npcAlmacenado.isActivo());
-						npc.setPosicionOriginal(npcAlmacenado.getxOriginal(), npcAlmacenado.getyOriginal());
-						npc.setVolver(npcAlmacenado.isActivo());
-						break;
-					}
-				}
-				npcs.add(npc);
-			}
-		}
-		if (!objetos.isEmpty()) {
-			/* Recarga de objetos */
-			MapObjects objs = map.getLayers().get("Objetos").getObjects();
-			for (MapObject o : objs) {	
-				ObjetoMapa obj = new ObjetoMapa(o);
-				for (ObjetoMapa objAlmacenado : objetos) {
-					if (objAlmacenado.getProperties().get("ID").equals(obj.getProperties().get("ID"))) {
-						objetos.remove(objetos.indexOf(objAlmacenado));
-						obj.setProperties(objAlmacenado.getProperties());
-						break;
-					}
-				}
-				objetos.add(obj);
-			}
-		}
-
-		/* Player */
-		player = new Player(getCtx(), playerAtlas, (TiledMapTileLayer) map.getLayers().get("Entorno"),
-				map.getLayers().get("Objetos"), map.getLayers().get("Trans"), npcs, getCtx().dialogo, this);
-		player.setPosition(getCtx().x, getCtx().y);
-		player.setLastPressed(getCtx().lastPressed);
-
-		for (NPC npc : npcs) {
-			npc.setPlayer(player);
-		}
 
 		Gdx.input.setInputProcessor(this);
 		batch = new SpriteBatch();
@@ -220,57 +151,21 @@ public class Play extends Pantalla {
 			cargarFuente();
 
 		font.setColor(Color.BLACK);
-
-		primeraVez = false;
-
+		
+		camController = new CameraInputController(cam);
+		Gdx.input.setInputProcessor(camController);
 	}
 
 	@Override
 	public void render(float delta) {
+		camController.update();
+		
  		Gdx.gl.glClearColor(0, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		tweenManager.update(delta);
-
-		camera.position.set(player.getX() + (player.getWidth() / 2), player.getY() + (player.getHeight() / 2), 0);
-		camera.zoom = (float) 1;
-		camera.update();
-		renderer.setView(camera);
-		renderer.render();
-
-		/* Begin */
-		renderer.getBatch().begin();
-
-		ArrayList<?> render = ordenar(player, npcs, objetos);
-		for (Object object : render) {
-			if (object instanceof Player) {
-				((Player) object).draw(renderer.getBatch());
-			} else if (object instanceof NPC) {
-				((NPC) object).draw(renderer.getBatch());
-			} else {
-				renderer.renderObject((ObjetoMapa) object);
-			}
-		}
-
-		/* End */
-		renderer.getBatch().end();
-
-		/* Menu */
-		if (player.getSpacePressed()) {
-			// Show menu
-			// openMenuPlay();
-		}
-
-		if (optionsVisible) {
-			batch.begin();
-			box.draw(batch);
-			if (font == null) {
-				cargarFuente();
-			}
-			font.setColor(Color.BLACK);
-			font.draw(batch, getCtx().dialogo.getLinea1(), 50, 125);
-			font.draw(batch, getCtx().dialogo.getLinea2(), 50, 75);
-			batch.end();
-		}
+		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+		
+		decalBatch.add(decalMapa);
+		decalBatch.flush();
 	}
 
 	private void cargarFuente() {
@@ -279,18 +174,6 @@ public class Play extends Pantalla {
 		FreeTypeFontParameter parameter = new FreeTypeFontParameter();
 		parameter.size = 35;
 		font = generator.generateFont(parameter);
-	}
-
-	private ArrayList<Object> ordenar(Player player, ArrayList<NPC> npcs, ArrayList<ObjetoMapa> objetos) {
-		ArrayList<Object> componentes = new ArrayList<>();
-		componentes.add(player);
-		componentes.addAll(npcs);
-		for (ObjetoMapa object : objetos) {
-			componentes.add(object);
-		}
-		Collections.sort(componentes, new CustomComparator());
-
-		return componentes;
 	}
 
 	public class CustomComparator implements Comparator<Object> {
@@ -339,9 +222,6 @@ public class Play extends Pantalla {
 
 	@Override
 	public void resize(int width, int height) {
-		camera.viewportWidth = width;
-		camera.viewportHeight = height;
-		camera.update();
 
 	}
 
@@ -365,10 +245,6 @@ public class Play extends Pantalla {
 
 	@Override
 	public void dispose() {
-		map.dispose();
-		renderer.dispose();
-
-		playerAtlas.dispose();
 
 	}
 
