@@ -128,7 +128,7 @@ public abstract class Enfrentamiento extends Pantalla {
 
 	@Override
 	public void show() {
-		obtainModelPokemon(); 
+		obtainModelPokemon();
 		inputMultiplexer = new InputMultiplexer();
 		inputMultiplexer.addProcessor(this);
 		inputMultiplexer.addProcessor(camController);
@@ -152,7 +152,8 @@ public abstract class Enfrentamiento extends Pantalla {
 		 * pokemon = new Sprite(new Texture( "res/imgs/pokemon/espalda/" +
 		 * jugador.getEquipo().get(iPokemon).getNombre().toLowerCase() +
 		 * ".png"));
-		 */cajaLuchar = new Sprite(new Texture("res/imgs/batallas/battleFight.png"));
+		 */
+		cajaLuchar = new Sprite(new Texture("res/imgs/batallas/battleFight.png"));
 		tipos = new Texture("res/imgs/batallas/battleFightButtons.png");
 		barraVida = new Texture("res/imgs/batallas/hpbars.png");
 		cajaPkmn = new Sprite(new Texture("res/imgs/batallas/cajaPkmn.png"));
@@ -166,7 +167,7 @@ public abstract class Enfrentamiento extends Pantalla {
 		regionesTipos();
 		regionesTiposSel();
 		getExp();
-		
+
 	}
 
 	private void updateSelection() {
@@ -658,32 +659,32 @@ public abstract class Enfrentamiento extends Pantalla {
 	public void render3DPokemon() {
 		modelBatch.begin(cam);
 		Matrix4 tr = new Matrix4();
-        tr.setToTranslation(0, 0, 35);
-        Matrix4 rt = new Matrix4();
-        rt.setToRotation(Vector3.X, 90);
-        Matrix4 rt2 = new Matrix4();
-        rt2.setToRotation(Vector3.Z, 180);
-        tr = tr.mul(rt);
-        tr = tr.mul(rt2);
-        pokemonInstance.transform=tr;
-        renderInstance(pokemonInstance);
+		tr.setToTranslation(0, 0, 35);
+		Matrix4 rt = new Matrix4();
+		rt.setToRotation(Vector3.X, 90);
+		Matrix4 rt2 = new Matrix4();
+		rt2.setToRotation(Vector3.Z, 180);
+		tr = tr.mul(rt);
+		tr = tr.mul(rt2);
+		pokemonInstance.transform = tr;
+		renderInstance(pokemonInstance);
 		modelBatch.end();
 	}
-	
+
 	/**
 	 * Renderiza un objeto, previa comprobacion de frustum.
 	 */
 	protected void renderInstance(ModelInstance instance) {
 		if (isVisible(cam, pokemonInstance)) {
-        	modelBatch.render(pokemonInstance, environment);
-        }
+			modelBatch.render(pokemonInstance, environment);
+		}
 	}
-	
+
 	/**
-	 * Frustum culling.
-	 * Checks if an instance is inside the frustum or not.
+	 * Frustum culling. Checks if an instance is inside the frustum or not.
 	 */
 	protected Vector3 position = new Vector3();
+
 	protected boolean isVisible(final Camera cam, final ModelInstance instance) {
 		instance.transform.getTranslation(position);
 		return cam.frustum.pointInFrustum(position);
