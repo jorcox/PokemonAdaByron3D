@@ -34,7 +34,7 @@ public class AparicionPokemon {
 	public Pokemon[] setPokemonSalvaje(String mapa) {
 		double r;
 		Habilidad[] habs;
-		mapa = mapa.replace(".tmx", "");
+		mapa = mapa.replace(".png", "");
 
 		if (mapa.equals("Tranvia_n")) {
 			aparicion = new Pokemon[5];
@@ -62,7 +62,7 @@ public class AparicionPokemon {
 			habs = setHabilidades(208, 434, -1, -1);
 			aparicion[4].setHabilidades(habs);
 			aparicion[4].setTipo(Tipo.PLANTA);
-			int n = 4;
+			int n = 3;
 			for (int i = 0; i < aparicion.length; i++) {
 				for (int j = 0; j < n; j++) {
 					if (j < n - 4) {
@@ -477,7 +477,7 @@ public class AparicionPokemon {
 			aparicion[5].setHabilidades(habs);
 			aparicion[5].setTipo(Tipo.BICHO);
 
-			int n = 7;
+			int n = 6;
 			for (int i = 0; i < aparicion.length; i++) {
 				for (int j = 0; j < n; j++) {
 					if (j < n - 4) {
@@ -547,7 +547,7 @@ public class AparicionPokemon {
 		mapa = mapa.replace(".tmx", "");
 
 		if (mapa.equals("Tranvia_n")) {
-			aparicion = new Pokemon[2];
+			aparicion = new Pokemon[3];
 			aparicion[0] = bd.getPokemonTipo(129);
 			habs = setHabilidades(300, -1, -1, -1);
 			aparicion[0].setHabilidades(habs);
@@ -557,6 +557,11 @@ public class AparicionPokemon {
 			habs = setHabilidades(543, 287, 434, -1);
 			aparicion[1].setHabilidades(habs);
 			aparicion[1].setTipo(Tipo.AGUA);
+			
+			aparicion[2] = bd.getPokemonTipo(134);
+			habs = setHabilidades(535,307,27,243);
+			aparicion[2].setHabilidades(habs);
+			aparicion[2].setTipo(Tipo.AGUA);
 
 			int n = 40;
 			for (int i = 0; i < aparicion.length; i++) {

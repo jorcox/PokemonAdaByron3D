@@ -1,17 +1,20 @@
 package com.pokemon.pantallas;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -21,12 +24,18 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.maps.MapLayer;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
@@ -34,6 +43,8 @@ import com.badlogic.gdx.maps.objects.TextureMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.pokemon.entities.NPC;
@@ -41,11 +52,13 @@ import com.pokemon.entities.Player;
 import com.pokemon.mochila.Antidoto;
 import com.pokemon.mochila.MO;
 import com.pokemon.mochila.Pocion;
+import com.pokemon.pantallas.Play.CustomComparator;
 import com.pokemon.render.TextureMapObjectRenderer;
 import com.pokemon.utilidades.ArchivoGuardado;
 
 import aurelienribon.tweenengine.TweenManager;
 import db.BaseDatos;
+import entrenadores.Medalla;
 import pokemon.Pokemon;
 
 public class Play extends Pantalla {
@@ -89,6 +102,11 @@ public class Play extends Pantalla {
 	public PerspectiveCamera cam;
 	public Environment environment;
 	public CameraInputController camController;
+	protected InputMultiplexer inputMultiplexer;
+	
+	Model modelProta;
+	ModelInstance instanceProta;
+	protected ModelBatch modelBatch;
 
 	public Play(ArchivoGuardado ctx) {
 		this.setCtx(ctx);
@@ -107,27 +125,26 @@ public class Play extends Pantalla {
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1000f, -800f, -200f));
 
 		cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		cam.position.set(0f, 30f, 0f);
-		cam.lookAt(0, 0, 0);
+		cam.position.set(-15f, 10f, 20f);
+		cam.lookAt(-15f, 0, 20f);
 		cam.near = 1f;
 		cam.far = 300f;
 		cam.update();
 		
-		mapa = "res/imgs/mapas/" + mapa;
+		this.mapa =  mapa;
 		
 		decalBatch = new DecalBatch(new CameraGroupStrategy(cam));
-		decalMapa = Decal.newDecal(10, 10, new TextureRegion(new Texture(mapa)));
+		decalMapa = Decal.newDecal(10, 10, new TextureRegion(new Texture("res/imgs/mapas/" +mapa)));
 		decalMapa.setPosition(0, 0, 0);
-		decalMapa.setDimensions(35, 35);
+		decalMapa.setDimensions(48, 60);
 		decalMapa.rotateX(270);
 		
 		ctx.x = x;
 		ctx.y = y;
 		ctx.lastPressed = lastPressed;
-		ctx.map = mapa;
+		ctx.map = mapa.replace("imgs/", "").replace("png", "tmx");
 		this.setCtx(ctx);
 
-		this.mapa = mapa;
 
 		Gdx.input.setInputProcessor(this);
 		setDialogando(false);
@@ -153,7 +170,148 @@ public class Play extends Pantalla {
 		font.setColor(Color.BLACK);
 		
 		camController = new CameraInputController(cam);
-		Gdx.input.setInputProcessor(camController);
+		inputMultiplexer = new InputMultiplexer();
+		inputMultiplexer.addProcessor(this);
+		inputMultiplexer.addProcessor(camController);
+		Gdx.input.setInputProcessor(inputMultiplexer);
+		obtainModelProta();
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		renderer = new TextureMapObjectRenderer(map);
+		
+		
+		playerAtlas = new TextureAtlas("res/imgs/entrenadoresWorld/protagonista.pack");
+		TmxMapLoader loader = new TmxMapLoader();
+		map = loader.load("res/mapas/" +mapa.replace("png", "tmx"));
+		if (primeraVez) {
+			/* Carga de NPCs */
+			MapLayer npcLayer = map.getLayers().get("Personajes");
+			for (MapObject o : npcLayer.getObjects()) {
+				TextureMapObject t = (TextureMapObject) o;
+				/* Carga de atributos */
+				String dirVista = (String) t.getProperties().get("dir");
+				int disVista = Integer.parseInt((String) t.getProperties().get("dis"));
+				String dialogoCode = (String) t.getProperties().get("dialogo");
+				boolean combate = Boolean.parseBoolean((String) t.getProperties().get("combate"));
+				String medalla = null;
+				if (t.getProperties().containsKey("medalla")) {
+					medalla = (String) t.getProperties().get("medalla");
+				}
+				boolean activo = true;
+				if (t.getProperties().containsKey("activo")) {
+					activo = Boolean.parseBoolean((String) t.getProperties().get("activo"));
+				}
+				boolean volver = t.getProperties().containsKey("volver");
+				boolean marcos = false;
+				if (t.getProperties().containsKey("marcos")) {
+					marcos = Boolean.parseBoolean((String) t.getProperties().get("marcos"));
+				}
+
+				TextureAtlas personajePack = new TextureAtlas(
+						"res/imgs/entrenadoresWorld/" + (String) t.getProperties().get("pack") + ".pack");
+				/* Creación del los NPCs */
+				NPC npc = new NPC(personajePack, new Animation(1 / 10f, playerAtlas.findRegions(dirVista)), dirVista,
+						disVista, this, dialogoCode, combate, medalla);
+				npc.setPosition(t.getX(), t.getY());
+				// t.getTextureRegion().getTexture().getHeight();
+				// t.getTextureRegion().getTexture().get
+				npc.setPosicionOriginal(t.getX(), t.getY());
+				if (!t.getProperties().containsKey("ancho")) {
+					npc.setScale((float) 1.5, 1);
+				}
+				npc.setActivo(activo);
+				npc.setVolver(volver);
+				npc.setMarcos(marcos);
+				npcs.add(npc);
+			}
+			for (MapObject obj : map.getLayers().get("Objetos").getObjects()) {
+				objetos.add(new ObjetoMapa(obj));
+			}
+		}
+		/*
+		 * Caso de recien cargado
+		 */
+		if (!npcs.isEmpty() && npcs.get(0).getCara() == null) {
+			/* Recarga de NPCs */
+			MapLayer npcLayer = map.getLayers().get("Personajes");
+			for (MapObject o : npcLayer.getObjects()) {
+				TextureMapObject t = (TextureMapObject) o;
+				String dirVista = (String) t.getProperties().get("dir");
+				boolean combate = Boolean.parseBoolean((String) t.getProperties().get("combate"));
+				int disVista = Integer.parseInt((String) t.getProperties().get("dis"));
+				String dialogoCode = (String) t.getProperties().get("dialogo");
+				String medalla = null;
+				if (t.getProperties().containsKey("medalla")) {
+					medalla = (String) t.getProperties().get("medalla");
+				}
+				TextureAtlas personajePack = new TextureAtlas(
+						"res/imgs/entrenadoresWorld/" + (String) t.getProperties().get("pack") + ".pack");
+				NPC npc = new NPC(personajePack, new Animation(1 / 10f, playerAtlas.findRegions(dirVista)), dirVista,
+						disVista, this, dialogoCode, combate, medalla);
+				if (!t.getProperties().containsKey("ancho")) {
+					npc.setScale((float) 1.5, 1);
+				}
+				for (NPC npcAlmacenado : npcs) {
+					if (npc.getDialogoCode().equals(npcAlmacenado.getDialogoCode())) {
+						npcs.remove(npcs.indexOf(npcAlmacenado));
+						npc.setPosition(npcAlmacenado.getX(), npcAlmacenado.getY());
+						npc.setActivo(npcAlmacenado.isActivo());
+						npc.setPosicionOriginal(npcAlmacenado.getxOriginal(), npcAlmacenado.getyOriginal());
+						npc.setVolver(npcAlmacenado.isActivo());
+						npc.setMarcos(npcAlmacenado.isMarcos());
+						npc.setDireccionVision(npcAlmacenado.getDireccionVision());
+						break;
+					}
+				}
+				npcs.add(npc);
+			}
+		}
+		if (!objetos.isEmpty()) {
+			/* Recarga de objetos */
+			MapObjects objs = map.getLayers().get("Objetos").getObjects();
+			for (MapObject o : objs) {
+				ObjetoMapa obj = new ObjetoMapa(o);
+				for (ObjetoMapa objAlmacenado : objetos) {
+					if (objAlmacenado.getProperties().get("ID").equals(obj.getProperties().get("ID"))) {
+						objetos.remove(objetos.indexOf(objAlmacenado));
+						obj.setProperties(objAlmacenado.getProperties());
+						break;
+					}
+				}
+				objetos.add(obj);
+			}
+		}
+
+		/* Player */
+		player = new Player(getCtx(), playerAtlas, (TiledMapTileLayer) map.getLayers().get("Entorno"),
+				map.getLayers().get("Objetos"), map.getLayers().get("Trans"), npcs, getCtx().dialogo, this);
+		player.setPosition(getCtx().x, getCtx().y);
+		player.setLastPressed(getCtx().lastPressed);
+		equipoPokemon();
+
+		for (NPC npc : npcs) {
+			npc.setPlayer(player);
+		}
+
+		batch = new SpriteBatch();
+		box = new Sprite(new Texture("res/imgs/OptionBox.png"));
+		box.setScale((float) 4.5, (float) 1.5);
+		box.setX(box.getX() + 160);
+
+		if (font == null)
+			cargarFuente();
+
+		font.setColor(Color.BLACK);
+
+		primeraVez = false;
+
 	}
 
 	@Override
@@ -163,9 +321,20 @@ public class Play extends Pantalla {
  		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
-		
+		render3DProta();
 		decalBatch.add(decalMapa);
 		decalBatch.flush();
+		if (optionsVisible) {
+			batch.begin();
+			box.draw(batch);
+			if (font == null) {
+				cargarFuente();
+			}
+			font.setColor(Color.BLACK);
+			font.draw(batch, getCtx().dialogo.getLinea1(), 50, 125);
+			font.draw(batch, getCtx().dialogo.getLinea2(), 50, 75);
+			batch.end();
+		}
 	}
 
 	private void cargarFuente() {
@@ -174,6 +343,18 @@ public class Play extends Pantalla {
 		FreeTypeFontParameter parameter = new FreeTypeFontParameter();
 		parameter.size = 35;
 		font = generator.generateFont(parameter);
+	}
+	
+	private ArrayList<Object> ordenar(Player player, ArrayList<NPC> npcs, ArrayList<ObjetoMapa> objetos) {
+		ArrayList<Object> componentes = new ArrayList<>();
+		componentes.add(player);
+		componentes.addAll(npcs);
+		for (ObjetoMapa object : objetos) {
+			componentes.add(object);
+		}
+		Collections.sort(componentes, new CustomComparator());
+
+		return componentes;
 	}
 
 	public class CustomComparator implements Comparator<Object> {
@@ -268,13 +449,13 @@ public class Play extends Pantalla {
 				getCtx().lastPressed = 2;
 				if (getCtx().lastPressed == 0) {
 					getCtx().lastPressed = 2;
-				} 
+				}
 				player.WPressed = true;
 			} else if (movimiento && keycode == getCtx().getTeclaLeft()) {
 				player.checkCombat();
 				player.velocity.x = -player.speed;
 				player.velocity.y = 0;
-				player.animationTime = 0;				
+				player.animationTime = 0;
 				player.setLastPressed(1);
 				getCtx().lastPressed = 1;
 				if (getCtx().lastPressed == 0) {
@@ -303,7 +484,7 @@ public class Play extends Pantalla {
 					getCtx().lastPressed = 4;
 				}
 				player.DPressed = true;
-			} else if (keycode == getCtx().getTeclaB()) {
+			} else if (movimiento && keycode == getCtx().getTeclaB()) {
 				// player.SpacePressed = true;
 				getCtx().getMapas().put(getMapa(), this);
 				((Game) Gdx.app.getApplicationListener()).setScreen(new MenuPlay(getCtx(), player.getX(), player.getY(),
@@ -358,10 +539,10 @@ public class Play extends Pantalla {
 						}
 					}
 				}
-			} else if (keycode == Keys.V) {
-				((Game) Gdx.app.getApplicationListener())
-						.setScreen(new CombateEntrenador(getCtx(), player, "reverte", this));
-			}
+			} 
+			player.update(0.2738f);
+			System.out.println(player.getX());
+			System.out.println(player.getY());
 		}
 		return false;
 	}
@@ -395,9 +576,9 @@ public class Play extends Pantalla {
 			getCtx().dialogo.setLineas(getCtx().dialogo.siguienteLinea(), getCtx().dialogo.siguienteLinea());
 
 			/* Introduce en mochila */
-			if (value.equals("PociÃ³n")) {
+			if (value.equals("Poción")) {
 				getCtx().mochila.add(new Pocion());
-			}  else if (value.equals("Corte")) {
+			} else if (value.equals("Corte")) {
 				getCtx().mochila.add(new MO("Corte"));
 			} else if (value.equals("Fuerza")) {
 				getCtx().mochila.add(new MO("Fuerza"));
@@ -410,13 +591,19 @@ public class Play extends Pantalla {
 			o.getObj().getProperties().put("used", "true");
 			o.getProperties().put("mostrar", "false");
 			o.getObj().getProperties().put("mostrar", "false");
-		}else if(o.getProperties().containsKey("salud")){
+		} else if (o.getProperties().containsKey("salud")) {
 			optionsVisible = true;
 			setDialogando(true);
 			getCtx().dialogo.procesarDialogo("centro_salud");
 			getCtx().dialogo.setLineas(getCtx().dialogo.siguienteLinea(), getCtx().dialogo.siguienteLinea());
-			for(Pokemon poke :getCtx().jugador.getEquipo()){
+			for (Pokemon poke : getCtx().jugador.getEquipo()) {
 				poke.sanar();
+			}
+		} else if (o.getProperties().containsKey("medalla")) {
+			if (player.jugador.getMedallas().contains(Medalla.valueOf((String) o.getProperties().get("medalla")))) {
+				/* Asi no se puede volver a coger ese item */
+				o.getProperties().put("mostrar", "false");
+				o.getObj().getProperties().put("mostrar", "false");
 			}
 		}
 	}
@@ -475,7 +662,7 @@ public class Play extends Pantalla {
 					player.velocity.y = 0;
 				}
 				player.animationTime = 0;
-				//getCtx().lastPressed = 2;
+				// getCtx().lastPressed = 2;
 				player.WPressed = false;
 			} else if (movimiento && keycode == getCtx().getTeclaLeft()) {
 				if (player.DPressed) {
@@ -491,7 +678,7 @@ public class Play extends Pantalla {
 					player.velocity.x = 0;
 				}
 				player.animationTime = 0;
-				//getCtx().lastPressed = 1;
+				// getCtx().lastPressed = 1;
 				player.APressed = false;
 			} else if (movimiento && keycode == getCtx().getTeclaDown()) {
 				if (player.WPressed) {
@@ -507,7 +694,7 @@ public class Play extends Pantalla {
 					player.velocity.y = 0;
 				}
 				player.animationTime = 0;
-				//getCtx().lastPressed = 3;
+				// getCtx().lastPressed = 3;
 				player.SPressed = false;
 			} else if (movimiento && keycode == getCtx().getTeclaRight()) {
 				if (player.APressed) {
@@ -523,17 +710,18 @@ public class Play extends Pantalla {
 					player.velocity.x = 0;
 				}
 				player.animationTime = 0;
-				//getCtx().lastPressed = 4;
+				// getCtx().lastPressed = 4;
 				player.DPressed = false;
 			} else if (keycode == getCtx().getTeclaB()) {
 				player.SpacePressed = false;
 			}
+			//player.update(0.16f);
 		}
 		return false;
 	}
 
 	public void setJugador() {
-		//equipoPokemon();
+		equipoPokemon();
 	}
 
 	public void equipoPokemon() {
@@ -546,7 +734,7 @@ public class Play extends Pantalla {
 			arrayP.add(db.getPokemon(3));
 			arrayP.add(db.getPokemon(0));
 			arrayP.add(db.getPokemon(5));
-			//getCtx().jugador.setEquipo(arrayP);
+			getCtx().jugador.setEquipo(arrayP);
 			db.shutdown();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -613,4 +801,31 @@ public class Play extends Pantalla {
 		this.objetos = objetos;
 	}
 
+	private void obtainModelProta() {
+		modelBatch = new ModelBatch();
+		try {
+			modelProta = new ModelBuilder().createBox(0.5f, 0.5f, 0.5f,
+					new Material(ColorAttribute.createDiffuse(Color.GREEN)), Usage.Position | Usage.Normal);
+			instanceProta = new ModelInstance(modelProta);
+		} catch (Exception e) {
+			/* Si peta al intentar crear el modelo, pone un cubo verde */
+			modelProta = new ModelBuilder().createBox(5f, 5f, 5f,
+					new Material(ColorAttribute.createDiffuse(Color.GREEN)), Usage.Position | Usage.Normal);
+			instanceProta = new ModelInstance(modelProta);
+		}
+	}
+	
+	public void render3DProta() {
+		Matrix4 tr = new Matrix4();
+		float x = player.getX()-1100;
+		float z = player.getY()-1330;
+
+		tr.setToTranslation(x/45f, 0, -z/45f);
+		
+		
+		modelBatch.begin(cam);
+		instanceProta.transform=tr;
+		modelBatch.render(instanceProta, environment);
+		modelBatch.end();
+	}
 }
