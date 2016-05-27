@@ -1,15 +1,32 @@
 package com.pokemon.pantallas;
 
+import java.io.File;
+
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
+import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
+import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 import com.pokemon.dialogo.Dialogo;
 import com.pokemon.entities.Player;
 import com.pokemon.utilidades.ArchivoGuardado;
@@ -26,6 +43,13 @@ public class PokemonIniciales extends Pantalla {
 
 	Sprite bg, ball, ballSel, message, cajaPokemon, cajaUsar, dedo;
 	Sprite[] pokemon = new Sprite[3];
+	Model[] modelPokemon = new Model[3];
+	ModelInstance[] instancePokemon = new ModelInstance[3];
+	ModelBatch modelBatch;
+	protected Environment environment;
+	protected CameraInputController camController;
+	protected PerspectiveCamera cam;
+	protected InputMultiplexer inputMultiplexer;
 	protected Dialogo dialogo;
 	private int fase = 1;
 	private int seleccion = 0;
@@ -51,7 +75,11 @@ public class PokemonIniciales extends Pantalla {
 
 	@Override
 	public void show() {
-		Gdx.input.setInputProcessor(this);
+		create3D();
+		inputMultiplexer = new InputMultiplexer();
+		inputMultiplexer.addProcessor(this);
+		inputMultiplexer.addProcessor(camController);
+		Gdx.input.setInputProcessor(inputMultiplexer);
 		batch = new SpriteBatch();
 		bg = new Sprite(new Texture("res/imgs/iniciales/bg.png"));
 		ball = new Sprite(new Texture("res/imgs/iniciales/ball.png"));
@@ -68,8 +96,10 @@ public class PokemonIniciales extends Pantalla {
 
 	@Override
 	public void render(float delta) {
+		camController.update();
+		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClearColor(0, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		batch.begin();
 		bg.draw(batch);
 		bg.setSize(720, 540);
@@ -86,7 +116,9 @@ public class PokemonIniciales extends Pantalla {
 			}
 		}
 		batch.end();
-
+		if (fase != 1) {
+			render3D();
+		}
 	}
 
 	public void dibujarBalls() {
@@ -111,9 +143,10 @@ public class PokemonIniciales extends Pantalla {
 				cajaPokemon.draw(batch);
 				cajaPokemon.setSize(200, 300);
 				cajaPokemon.setPosition(x - 70, y + 50);
-				pokemon[i].draw(batch);
-				pokemon[i].setPosition(x - 40, y + 130);
-				pokemon[i].setSize(150, 150);
+				/*
+				 * pokemon[i].draw(batch); pokemon[i].setPosition(x - 40, y +
+				 * 130); pokemon[i].setSize(150, 150);
+				 */
 			} else {
 				ball.draw(batch);
 				ball.setPosition(x, y);
@@ -182,7 +215,15 @@ public class PokemonIniciales extends Pantalla {
 				String l2 = dialogo.siguienteLinea();
 				if (elegir) {
 					if (fin) {
-						elegirPokemon(seleccion);
+						int indice = 1;
+						if (seleccion == 0) {
+							indice = 1;
+						} else if (seleccion == 1) {
+							indice = 4;
+						} else if (seleccion == 2) {
+							indice = 7;
+						}
+						elegirPokemon(indice);
 
 					} else if (si_no) {
 						String nombre = "";
@@ -192,9 +233,8 @@ public class PokemonIniciales extends Pantalla {
 							nombre = "Charmander";
 						} else if (seleccion == 2) {
 							nombre = "Squirtle";
-
 						}
-						String[] frase = { "Â¡ENHORABUENA! Has elegido a ", nombre + "!!!!" };
+						String[] frase = { "¡ENHORABUENA! Has elegido a ", nombre + "!!!!" };
 						dialogo.setFrases(frase);
 						dialogo.setLineas(dialogo.siguienteLinea(), dialogo.siguienteLinea());
 						fin = true;
@@ -214,13 +254,13 @@ public class PokemonIniciales extends Pantalla {
 					} else if (fase == 2) {
 						elegir = true;
 						if (seleccion == 0) {
-							String[] frase = { "Â¿Estas seguro de coger al peor pokemon del mundo?", "" };
+							String[] frase = { "¿Estas seguro de coger al peor pokemon del mundo?", "" };
 							dialogo.setFrases(frase);
 						} else if (seleccion == 1) {
-							String[] frase = { "Â¿Estas seguro de coger al mierdas este?", "" };
+							String[] frase = { "¿Estas seguro de coger al mierdas este?", "" };
 							dialogo.setFrases(frase);
 						} else if (seleccion == 2) {
-							String[] frase = { "Â¿Estas seguro de coger al pokemon con mas swag del mundo?", "" };
+							String[] frase = { "¿Estas seguro de coger al pokemon con mas swag del mundo?", "" };
 							dialogo.setFrases(frase);
 						}
 
@@ -259,7 +299,7 @@ public class PokemonIniciales extends Pantalla {
 	private void elegirPokemon(int i) {
 		try {
 			BaseDatos bd = new BaseDatos("pokemon_base");
-			Pokemon poke = bd.getPokemonTipo(seleccion+1);
+			Pokemon poke = bd.getPokemonTipo(i);
 			Habilidad[] habs = new Habilidad[4];
 			if (seleccion == 0) {
 				poke.setTipo(Tipo.PLANTA);
@@ -274,7 +314,7 @@ public class PokemonIniciales extends Pantalla {
 			}
 			bd.shutdown();
 			poke.setHabilidades(habs);
-			for(int j=0;j<5;j++){
+			for (int j = 0; j < 5; j++) {
 				poke.subirNivel(0, 0);
 			}
 			poke.sanar();
@@ -329,6 +369,85 @@ public class PokemonIniciales extends Pantalla {
 	public boolean scrolled(int amount) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	private void create3D() {
+		environment = new Environment();
+		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
+		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
+
+		cam = new PerspectiveCamera(67, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		cam.position.set(30f, 20f, 50f);
+		cam.lookAt(0, 0, 0);
+		cam.near = 1f;
+		cam.far = 300f;
+		cam.update();
+
+		obtainModel(0);
+		obtainModel(1);
+		obtainModel(2);
+
+		camController = new CameraInputController(cam);
+	}
+
+	private void obtainModel(int i) {
+		String nombre = "";
+		if (i == 0) {
+			nombre = "Bulbasaur";
+		} else if (i == 1) {
+			nombre = "Charmander";
+		} else if (i == 2) {
+			nombre = "Squirtle";
+		}
+		modelBatch = new ModelBatch();
+		try {
+			ObjLoader loader = new ObjLoader();
+			String sDir = "res/Models/" + nombre;
+			File dir = new File(sDir);
+			File[] files = dir.listFiles();
+			String modelFile = "";
+			for (int j = 0; j < files.length && modelFile.equals(""); j++) {
+				if (files[j].getName().endsWith("obj")) {
+					modelFile = sDir + "/" + files[j].getName();
+					System.out.println(modelFile);
+				}
+			}
+			modelPokemon[i] = loader.loadModel(Gdx.files.internal(modelFile), true);
+			instancePokemon[i] = new ModelInstance(modelPokemon[i]);
+		} catch (Exception e) {
+			/* Si peta al intentar crear el modelo, pone un cubo verde */
+			modelPokemon[i] = new ModelBuilder().createBox(5f, 5f, 5f,
+					new Material(ColorAttribute.createDiffuse(Color.GREEN)), Usage.Position | Usage.Normal);
+			instancePokemon[i] = new ModelInstance(modelPokemon[i]);
+		}
+	}
+
+	private void render3D() {
+		
+		Matrix4 tr = null;
+		if (seleccion == 0) {
+			tr = new Matrix4();
+			tr.setToTranslation(10, 17, 35);
+			Matrix4 rt = new Matrix4();
+			rt.setToRotation(Vector3.Y, 60);
+			tr = tr.mul(rt);
+		} else if (seleccion == 1) {
+			tr = new Matrix4();
+			tr.setToTranslation(22, 17, 35);
+			Matrix4 rt = new Matrix4();
+			rt.setToRotation(Vector3.Y, 30);
+			tr = tr.mul(rt);
+		} else {
+			tr = new Matrix4();
+			tr.setToTranslation(29, 17, 35);
+			Matrix4 rt = new Matrix4();
+			rt.setToRotation(Vector3.Y, 15);
+			tr = tr.mul(rt);
+		}
+		modelBatch.begin(cam);
+		instancePokemon[seleccion].transform = tr;
+		modelBatch.render(instancePokemon[seleccion], environment);
+		modelBatch.end();
 	}
 
 }
