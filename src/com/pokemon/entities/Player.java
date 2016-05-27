@@ -24,6 +24,7 @@ import com.pokemon.pantallas.Play;
 import com.pokemon.utilidades.ArchivoGuardado;
 
 import entrenadores.Jugador;
+import entrenadores.Medalla;
 import pokemon.AparicionPokemon;
 import pokemon.Pokemon;
 
@@ -65,6 +66,10 @@ public class Player extends Sprite implements Serializable {
 	private NPC npcInteractuando;
 
 	public boolean terminado = false;
+	
+	public NPC npcMarcos;
+	
+	public boolean marcos = false;
 
 	ArrayList<NPC> npcs;
 
@@ -94,6 +99,7 @@ public class Player extends Sprite implements Serializable {
 		this.dialogo = dialogo;
 		this.play = play;
 		this.npcs = npcs;
+		this.jugador = new Jugador("Sara", true);
 
 		p = 0;
 	}
@@ -236,7 +242,7 @@ public class Player extends Sprite implements Serializable {
 			// .getTile().getProperties().containsKey("blocked");
 		}
 		/*
-		 * ReacciÃ³n al colisionar en Y
+		 * Reacción al colisionar en Y
 		 */
 		if (collisionY) {
 			setY(oldY);
@@ -254,19 +260,29 @@ public class Player extends Sprite implements Serializable {
 						int encara = Integer.parseInt((String) t.getProperties().get("encara"));
 						play.getCtx().lastPressed = encara;
 					}
-					if (!play.getCtx().getMapas().containsKey(mapa + ".tmx")) {
-						play.getCtx().getMapas().put(play.getMapa(), play);
-						Pantalla p = new Play(play.getCtx(), Integer.parseInt((String) t.getProperties().get("x")),
-								Integer.parseInt((String) t.getProperties().get("y")), getLastPressed(), mapa + ".tmx");
-						play.getCtx().getMapas().put(mapa + ".tmx", p);
-						((Game) Gdx.app.getApplicationListener()).setScreen(p);
-					} else {
-						play.getCtx().getMapas().put(play.getMapa(), play);
-						play.getCtx().x = Integer.parseInt((String) t.getProperties().get("x"));
-						play.getCtx().y = Integer.parseInt((String) t.getProperties().get("y"));
-						play.getCtx().lastPressed = getLastPressed();
-						((Game) Gdx.app.getApplicationListener())
-								.setScreen(play.getCtx().getMapas().get(mapa + ".tmx"));
+					
+					boolean ok = true;
+					if (t.getProperties().containsKey("medalla")) {
+						ok = (jugador.getMedallas().contains(Medalla.valueOf((String)t.getProperties().get("medalla"))));
+					}
+					
+					if (ok) {
+						if (!play.getCtx().getMapas().containsKey(mapa + ".tmx")) {
+							play.getCtx().getMapas().put(play.getMapa(), play);
+							Pantalla p = new Play(play.getCtx(), Integer.parseInt((String) t.getProperties().get("x")),
+									Integer.parseInt((String) t.getProperties().get("y")), getLastPressed(), mapa + ".tmx");
+							play.getCtx().getMapas().put(mapa + ".tmx", p);
+							//play.getCtx().setMusic(mapa+".tmx");
+							((Game) Gdx.app.getApplicationListener()).setScreen(p);
+						} else {
+							play.getCtx().getMapas().put(play.getMapa(), play);
+							play.getCtx().x = Integer.parseInt((String) t.getProperties().get("x"));
+							play.getCtx().y = Integer.parseInt((String) t.getProperties().get("y"));
+							play.getCtx().lastPressed = getLastPressed();
+							//play.getCtx().setMusic(mapa+".tmx");
+							((Game) Gdx.app.getApplicationListener())
+									.setScreen(play.getCtx().getMapas().get(mapa + ".tmx"));
+						}
 					}
 					break;
 				}
@@ -292,15 +308,36 @@ public class Player extends Sprite implements Serializable {
 			}
 			/* Fuerza/Romper */
 
-			// TODO Comprobar Fuerza/Romper del personaje
-			if (currentCollision && texture.getProperties().containsKey("rompible")
-					&& texture.getProperties().get("rompible").equals("true")) {
+			if (currentCollision && texture.getProperties().containsKey("corte")
+					&& play.getCtx().mochila.tieneCorte()) {
 				object.getProperties().put("mostrar", "false");
 				texture.getProperties().put("mostrar", "false");
+			}
+			
+			if (currentCollision && texture.getProperties().containsKey("rompible")
+					&& texture.getProperties().get("rompible").equals("true")
+					&& play.getCtx().mochila.tieneFuerza()) {
+				object.getProperties().put("mostrar", "false");
+				texture.getProperties().put("mostrar", "false");
+				/* Caso Marcos */
+				if(object.getProperties().get("ID").equals("FT")){
+					for (NPC npc : npcs) {
+						if(npc.isMarcos()){
+							npcMarcos = npc;
+							interaccionMarcos(npc);
+							marcos = true;
+						}
+					}
+				}
 			}
 			/* Actualiza el flag global de colision */
 			collisionObj |= currentCollision;
 		}
+		
+		if(marcos){
+			interaccionMarcos(npcMarcos);
+		}
+		
 
 		/*
 		 * Colision de NPC
@@ -377,15 +414,62 @@ public class Player extends Sprite implements Serializable {
 		}
 	}
 
+	private void interaccionMarcos(NPC npc) {
+		if(!marcos) {
+			play.pauseMovimiento();
+			npcInteractuando = npc;
+			npc.setActivo(false);
+			velocity.x = 0;
+			velocity.y = 0;
+			play.pauseMovimiento();	
+			marcos = false;
+		}
+		
+		if (!npcInteractuando.isDialogado()) {
+			play.interactNPC(npcInteractuando);
+			npcInteractuando.setDialogado(true);
+		} else {
+			/*
+			 * Cuando deja de dialogar se procede a devolver la libertad
+			 * al jugador o iniciar el compate
+			 */
+			if (!play.isDialogando()) {
+				if (npcInteractuando.hayCombate()) {
+					if(npcInteractuando.isVolver()){
+						npcInteractuando.setX(478);
+						npcInteractuando.setY(700);
+						npcInteractuando.setDireccionVision("derecha");
+						npcInteractuando.volver();
+					}
+					iniciarCombate("marcos", null);
+				}
+				if(npcInteractuando.isVolver()){
+					npcInteractuando.setxOriginal(478);
+					npcInteractuando.setyOriginal(700);
+					npcInteractuando.setDireccionVision("derecha");
+					npcInteractuando.volver();
+				}
+				resetMovimiento();
+				play.resumeMovimiento();
+				esperando = false;
+				colisionNPC = false;
+			}
+		}
+		
+		
+
+		
+	}
+
 	private void interaccionEntrenadores() {
-		/* InteracciÃ³n entrenadores */
+		/* Interacción entrenadores */
 		for (NPC npc : npcs) {
 			if (visible(npc) && npc.isActivo()) {
+				play.pauseMovimiento();
 				npcInteractuando = npc;
 				npc.setActivo(false);
 				velocity.x = 0;
-				velocity.y = 0;
-				play.pauseMovimiento();
+				velocity.y = 0;				
 				npc.moverAPersonaje(this);
 				esperando = true;
 			}
@@ -410,7 +494,13 @@ public class Player extends Sprite implements Serializable {
 							if(npcInteractuando.isVolver()){
 								npcInteractuando.volver();
 							}
-							iniciarCombate(npcInteractuando.getDialogoCode());
+							String medalla = npcInteractuando.getMedalla();
+							if (medalla != null) {
+								iniciarCombate(npcInteractuando.getDialogoCode(),Medalla.valueOf(medalla));
+							} else {
+								iniciarCombate(npcInteractuando.getDialogoCode(),null);
+							}
+							
 						}
 						if(npcInteractuando.isVolver()){
 							npcInteractuando.volver();
@@ -434,7 +524,8 @@ public class Player extends Sprite implements Serializable {
 		DPressed = false;	
 	}
 
-	private void iniciarCombate(String id) {
+	private void iniciarCombate(String id, Medalla medalla) {
+		
 		play.getCtx().getMapas().put(play.getMapa(), play);
 		((Game) Gdx.app.getApplicationListener())
 				.setScreen(new CombateEntrenador(play.getCtx(), this, id, play));

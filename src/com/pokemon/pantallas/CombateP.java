@@ -28,6 +28,8 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 import com.pokemon.entities.Player;
 import com.pokemon.mochila.Ball;
 import com.pokemon.tween.SpriteAccessor;
@@ -108,7 +110,7 @@ public class CombateP extends Enfrentamiento {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		
-		render3D();
+		
 		
 		font.setColor(Color.BLACK);
 		tweenManager.update(delta);
@@ -227,10 +229,17 @@ public class CombateP extends Enfrentamiento {
 			lanzamientoBall();
 		}
 		batch.end();
+		render3D();
 		render3DPokemon();
 	}
 	
 	private void render3D() {
+		Matrix4 tr = new Matrix4();
+		tr.setToTranslation(15, 20, 5);
+		Matrix4 tr2 = new Matrix4();
+		tr2.setToRotation(Vector3.X, 90);
+		tr = tr.mul(tr2);
+		instance.transform=tr;
 		modelBatch.begin(cam);
         modelBatch.render(instance, environment);
         modelBatch.end();
