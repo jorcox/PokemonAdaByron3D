@@ -115,22 +115,11 @@ public class CombateP extends Enfrentamiento {
 		font.setColor(Color.BLACK);
 		tweenManager.update(delta);
 		batch.begin();
-		base.draw(batch);
-		baseEnemy.draw(batch);
 		message.draw(batch);
 		message.setSize(720, 120);
 		font.draw(batch, dialogo.getLinea1(), 50, 85);
 		font.draw(batch, dialogo.getLinea2(), 50, 45);
-		base.setPosition(-70, 120);
-		baseEnemy.setPosition(350, 300);
-		/*
-		 * Aparacion de pokemon pokemonEnemigo
-		 */
-		if (fase > 2) {
-			baseEnemy.setPosition(350, 300);
-			base.setPosition(-70, 120);
-
-		}
+		
 		/*
 		 * Decidir accion (Luchar, Mochila, Pokemon, Huir)
 		 */
@@ -249,14 +238,6 @@ public class CombateP extends Enfrentamiento {
 	public void show() {
 		create3D();
 		super.show();
-		
-		if (show) {
-			show = false;
-			Tween.set(base, SpriteAccessor.SLIDE).target(500, 120).start(tweenManager);
-			Tween.to(base, SpriteAccessor.SLIDE, 2).target(-70, 120).start(tweenManager);
-			Tween.set(baseEnemy, SpriteAccessor.SLIDE).target(-250, 300).start(tweenManager);
-			Tween.to(baseEnemy, SpriteAccessor.SLIDE, 2).target(350, 300).start(tweenManager);
-		}
 	} 
 
 	@Override

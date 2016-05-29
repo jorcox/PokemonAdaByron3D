@@ -96,7 +96,7 @@ public abstract class Enfrentamiento extends Pantalla {
 	SpriteBatch batch;
 	Texture tipos, barraVida;
 	TextureRegion[] regionesTipo, regionesTipoSel, barrasVida, barraExp;
-	protected Sprite base, baseEnemy, message, bgOp, bgOpTrans, boton, luchar, mochilaS, pokemonOp, huir, dedo,
+	protected Sprite message, bgOp, bgOpTrans, boton, luchar, mochilaS, pokemonOp, huir, dedo,
 			cajaLuchar, tipo1, tipo2, tipo3, tipo4, cajaPkmn, cajaPkmnpokemonEnemigo, entrenador, protagonista, expBar,
 			level, aprender, cajaAprender;
 
@@ -138,8 +138,6 @@ public abstract class Enfrentamiento extends Pantalla {
 		Tween.registerAccessor(Sprite.class, new SpriteAccessor());
 		batch = new SpriteBatch();
 
-		base = new Sprite(new Texture("res/imgs/batallas/playerbaseForestGrassEve.png"));
-		baseEnemy = new Sprite(new Texture("res/imgs/batallas/enemybaseFieldGrassEve.png"));
 		bgOp = new Sprite(new Texture("res/imgs/batallas/fondoOpciones.png"));
 		bgOpTrans = new Sprite(new Texture("res/imgs/batallas/bgOpTrans.png"));
 		dedo = new Sprite(new Texture("res/imgs/batallas/dedo.png"));

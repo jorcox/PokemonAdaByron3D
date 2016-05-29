@@ -124,9 +124,6 @@ public class CombateEntrenador extends Enfrentamiento {
 		font.setColor(Color.BLACK);
 		tweenManager.update(delta);
 		batch.begin();
-		base.draw(batch);
-
-		baseEnemy.draw(batch);
 
 		message.draw(batch);
 		message.setSize(720, 120);
@@ -146,22 +143,11 @@ public class CombateEntrenador extends Enfrentamiento {
 		if (fase == 1) {
 
 			protagonista.setPosition(100, 120);
-			base.setPosition(-70, 120);
-			baseEnemy.setPosition(350, 300);
 			protagonista.draw(batch);
 			
 			/*modelBatch.begin(cam);
 			modelBatch.render(instances[iPokemonEnemigo], environment);
 			modelBatch.end();*/
-		}
-		/*
-		 * Aparicion de pokemon nuestro
-		 */
-		if (fase > 2) {
-			
-			baseEnemy.setPosition(350, 300);
-			base.setPosition(-70, 120);
-
 		}
 
 		/*
@@ -292,12 +278,8 @@ public class CombateEntrenador extends Enfrentamiento {
 		protagonista = new Sprite(new Texture("res/imgs/entrenadores/prota.png"));
 		protagonista.setSize(150, 240);
 		if (fase < 1) {
-			Tween.set(base, SpriteAccessor.SLIDE).target(500, 120).start(tweenManager);
-			Tween.to(base, SpriteAccessor.SLIDE, 2).target(-70, 120).start(tweenManager);
 			Tween.set(protagonista, SpriteAccessor.SLIDE).target(500, 120).start(tweenManager);
 			Tween.to(protagonista, SpriteAccessor.SLIDE, 2).target(100, 120).start(tweenManager);
-			Tween.set(baseEnemy, SpriteAccessor.SLIDE).target(-250, 300).start(tweenManager);
-			Tween.to(baseEnemy, SpriteAccessor.SLIDE, 2).target(350, 300).start(tweenManager);
 			Tween.set(entrenador, SpriteAccessor.SLIDE).target(-250, 350).start(tweenManager);
 			Tween.to(entrenador, SpriteAccessor.SLIDE, 2).target(400, 350).start(tweenManager);
 		}
