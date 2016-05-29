@@ -104,8 +104,9 @@ public abstract class Enfrentamiento extends Pantalla {
 	protected ModelBatch modelBatch;
 	protected Environment environment;
 	protected CameraInputController camController;
-	Model pokemonModel;
-	ModelInstance pokemonInstance;
+	Model pokemonModel, base, baseEnemy;
+	ModelInstance pokemonInstance, baseInstance, baseEnemyInstance;
+	ModelBuilder builder;
 
 	protected InputMultiplexer inputMultiplexer;
 
@@ -124,6 +125,16 @@ public abstract class Enfrentamiento extends Pantalla {
 		font = generator.generateFont(parameter); // font size 35 pixels
 		fontC = generator.generateFont(parameterC);
 
+		/* Builds models for bases */
+		builder = new ModelBuilder();
+		base = builder.createSphere(5f, 5f, 5f, 50, 50,
+	            new Material(ColorAttribute.createDiffuse(Color.GREEN)),
+	            Usage.Position | Usage.Normal);
+		baseInstance = new ModelInstance(base);
+		baseEnemy = builder.createSphere(5f, 5f, 5f, 50, 50,
+	            new Material(ColorAttribute.createDiffuse(Color.GREEN)),
+	            Usage.Position | Usage.Normal);
+		baseEnemyInstance = new ModelInstance(baseEnemy);
 	}
 
 	@Override

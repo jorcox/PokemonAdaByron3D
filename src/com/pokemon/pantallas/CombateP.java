@@ -110,8 +110,6 @@ public class CombateP extends Enfrentamiento {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		
-		
-		
 		font.setColor(Color.BLACK);
 		tweenManager.update(delta);
 		batch.begin();
@@ -231,6 +229,8 @@ public class CombateP extends Enfrentamiento {
 		instance.transform=tr;
 		modelBatch.begin(cam);
         modelBatch.render(instance, environment);
+        modelBatch.render(baseInstance, environment);
+        modelBatch.render(baseEnemyInstance, environment);
         modelBatch.end();
 	}
 
