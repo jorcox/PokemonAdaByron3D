@@ -134,7 +134,8 @@ public class Play extends Pantalla {
 		cam.update();
 
 		this.mapa = mapa;
-
+		instanceNPC = new ArrayList<ModelInstance>();
+		instanceObject = new ArrayList<ModelInstance>();
 		decalBatch = new DecalBatch(new CameraGroupStrategy(cam));
 		decalMapa = Decal.newDecal(10, 10, new TextureRegion(new Texture("res/imgs/mapas/" + mapa)));
 		decalMapa.setPosition(0, 0, 0);
@@ -178,10 +179,7 @@ public class Play extends Pantalla {
 		modelBatch = new ModelBatch();
 		obtainModelProta();
 
-		modelNPC = new ArrayList<Model>();
-		modelObject = new ArrayList<Model>();
-		instanceNPC = new ArrayList<ModelInstance>();
-		instanceObject = new ArrayList<ModelInstance>();
+		
 
 		renderer = new TextureMapObjectRenderer(map);
 
