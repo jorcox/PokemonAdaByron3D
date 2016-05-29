@@ -62,7 +62,7 @@ public class NPC extends Sprite implements Serializable {
 
 	private float x, y;
 
-	private float xOriginal, yOriginal;
+	public float xOriginal, yOriginal;
 	
 	private String medalla;
 
