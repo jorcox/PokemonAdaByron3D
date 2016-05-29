@@ -78,13 +78,13 @@ public class Play extends Pantalla {
 	// private Player player = new Player(new Sprite(new
 	// Texture("assets/maps/tilesInterior.png")));
 	private Player player;
-	
+
 	private Stage stage;
-	
+
 	private ArrayList<NPC> npcs = new ArrayList<>();
-	
+
 	private ArrayList<ObjetoMapa> objetos = new ArrayList<>();
-	
+
 	private boolean dialogando;
 
 	/* Para pausar el listener de teclas */
@@ -95,17 +95,19 @@ public class Play extends Pantalla {
 	private boolean primeraVez = true;
 	/* String del mapa actual */
 	private String mapa;
-	
+
 	private Decal decalMapa;
 	private DecalBatch decalBatch;
-	
+
 	public PerspectiveCamera cam;
 	public Environment environment;
 	public CameraInputController camController;
 	protected InputMultiplexer inputMultiplexer;
-	
-	Model modelProta;
-	ModelInstance instanceProta;
+
+	private Model modelProta;
+	private ModelInstance instanceProta;
+	private ArrayList<Model> modelNPC, modelObject;
+	private ArrayList<ModelInstance> instanceNPC, instanceObject;
 	protected ModelBatch modelBatch;
 
 	public Play(ArchivoGuardado ctx) {
@@ -130,21 +132,20 @@ public class Play extends Pantalla {
 		cam.near = 1f;
 		cam.far = 300f;
 		cam.update();
-		
-		this.mapa =  mapa;
-		
+
+		this.mapa = mapa;
+
 		decalBatch = new DecalBatch(new CameraGroupStrategy(cam));
-		decalMapa = Decal.newDecal(10, 10, new TextureRegion(new Texture("res/imgs/mapas/" +mapa)));
+		decalMapa = Decal.newDecal(10, 10, new TextureRegion(new Texture("res/imgs/mapas/" + mapa)));
 		decalMapa.setPosition(0, 0, 0);
 		decalMapa.setDimensions(48, 60);
 		decalMapa.rotateX(270);
-		
+
 		ctx.x = x;
 		ctx.y = y;
 		ctx.lastPressed = lastPressed;
 		ctx.map = mapa.replace("imgs/", "").replace("png", "tmx");
 		this.setCtx(ctx);
-
 
 		Gdx.input.setInputProcessor(this);
 		setDialogando(false);
@@ -168,28 +169,25 @@ public class Play extends Pantalla {
 			cargarFuente();
 
 		font.setColor(Color.BLACK);
-		
+
 		camController = new CameraInputController(cam);
 		inputMultiplexer = new InputMultiplexer();
 		inputMultiplexer.addProcessor(this);
 		inputMultiplexer.addProcessor(camController);
 		Gdx.input.setInputProcessor(inputMultiplexer);
+		modelBatch = new ModelBatch();
 		obtainModelProta();
-		
-		
-		
-		
-		
-		
-		
-		
-		
+
+		modelNPC = new ArrayList<Model>();
+		modelObject = new ArrayList<Model>();
+		instanceNPC = new ArrayList<ModelInstance>();
+		instanceObject = new ArrayList<ModelInstance>();
+
 		renderer = new TextureMapObjectRenderer(map);
-		
-		
+
 		playerAtlas = new TextureAtlas("res/imgs/entrenadoresWorld/protagonista.pack");
 		TmxMapLoader loader = new TmxMapLoader();
-		map = loader.load("res/mapas/" +mapa.replace("png", "tmx"));
+		map = loader.load("res/mapas/" + mapa.replace("png", "tmx"));
 		if (primeraVez) {
 			/* Carga de NPCs */
 			MapLayer npcLayer = map.getLayers().get("Personajes");
@@ -230,9 +228,11 @@ public class Play extends Pantalla {
 				npc.setVolver(volver);
 				npc.setMarcos(marcos);
 				npcs.add(npc);
+				addModelNPC();
 			}
 			for (MapObject obj : map.getLayers().get("Objetos").getObjects()) {
 				objetos.add(new ObjetoMapa(obj));
+				addModelObject();
 			}
 		}
 		/*
@@ -271,6 +271,7 @@ public class Play extends Pantalla {
 					}
 				}
 				npcs.add(npc);
+				addModelNPC();
 			}
 		}
 		if (!objetos.isEmpty()) {
@@ -286,6 +287,7 @@ public class Play extends Pantalla {
 					}
 				}
 				objetos.add(obj);
+				addModelObject();
 			}
 		}
 
@@ -317,8 +319,8 @@ public class Play extends Pantalla {
 	@Override
 	public void render(float delta) {
 		camController.update();
-		
- 		Gdx.gl.glClearColor(0, 0, 0, 1);
+
+		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		render3DProta();
@@ -335,6 +337,9 @@ public class Play extends Pantalla {
 			font.draw(batch, getCtx().dialogo.getLinea2(), 50, 75);
 			batch.end();
 		}
+		for (int i = 0; i < npcs.size(); i++) {
+			render3DNPC(i);
+		}
 	}
 
 	private void cargarFuente() {
@@ -344,7 +349,7 @@ public class Play extends Pantalla {
 		parameter.size = 35;
 		font = generator.generateFont(parameter);
 	}
-	
+
 	private ArrayList<Object> ordenar(Player player, ArrayList<NPC> npcs, ArrayList<ObjetoMapa> objetos) {
 		ArrayList<Object> componentes = new ArrayList<>();
 		componentes.add(player);
@@ -367,14 +372,14 @@ public class Play extends Pantalla {
 			} else if (com1 instanceof NPC) {
 				Y1 = ((NPC) com1).getY();
 			} else {
-				Y1 = ((TextureMapObject)((ObjetoMapa) com1).getObj()).getY();
+				Y1 = ((TextureMapObject) ((ObjetoMapa) com1).getObj()).getY();
 			}
 			if (com2 instanceof Player) {
 				Y2 = ((Player) com2).getY();
 			} else if (com2 instanceof NPC) {
 				Y2 = ((NPC) com2).getY();
 			} else {
-				Y2 = ((TextureMapObject)((ObjetoMapa) com2).getObj()).getY();
+				Y2 = ((TextureMapObject) ((ObjetoMapa) com2).getObj()).getY();
 			}
 			return (int) ((Y2 - Y1));
 		}
@@ -539,8 +544,8 @@ public class Play extends Pantalla {
 						}
 					}
 				}
-			} 
-			player.update(0.2738f);
+			}
+			
 			System.out.println(player.getX());
 			System.out.println(player.getY());
 		}
@@ -715,7 +720,7 @@ public class Play extends Pantalla {
 			} else if (keycode == getCtx().getTeclaB()) {
 				player.SpacePressed = false;
 			}
-			//player.update(0.16f);
+			// player.update(0.16f);
 		}
 		return false;
 	}
@@ -802,7 +807,7 @@ public class Play extends Pantalla {
 	}
 
 	private void obtainModelProta() {
-		modelBatch = new ModelBatch();
+
 		try {
 			modelProta = new ModelBuilder().createBox(0.5f, 0.5f, 0.5f,
 					new Material(ColorAttribute.createDiffuse(Color.GREEN)), Usage.Position | Usage.Normal);
@@ -814,18 +819,70 @@ public class Play extends Pantalla {
 			instanceProta = new ModelInstance(modelProta);
 		}
 	}
-	
-	public void render3DProta() {
-		Matrix4 tr = new Matrix4();
-		float x = player.getX()-1100;
-		float z = player.getY()-1330;
 
-		tr.setToTranslation(x/45f, 0, -z/45f);
-		
-		
+	private void addModelNPC() {
+		try {
+			Model mdlnpc = new ModelBuilder().createBox(0.5f, 0.5f, 0.5f,
+					new Material(ColorAttribute.createDiffuse(Color.RED)), Usage.Position | Usage.Normal);
+			instanceNPC.add(new ModelInstance(mdlnpc));
+		} catch (Exception e) {
+			Model mdlnpc = new ModelBuilder().createBox(0.5f, 0.5f, 0.5f,
+					new Material(ColorAttribute.createDiffuse(Color.RED)), Usage.Position | Usage.Normal);
+			instanceNPC.add(new ModelInstance(mdlnpc));
+		}
+	}
+
+	private void addModelObject() {
+		try {
+			Model mdlobj = new ModelBuilder().createBox(0.5f, 0.5f, 0.5f,
+					new Material(ColorAttribute.createDiffuse(Color.BLUE)), Usage.Position | Usage.Normal);
+			instanceObject.add(new ModelInstance(mdlobj));
+		} catch (Exception e) {
+			Model mdlobj = new ModelBuilder().createBox(0.5f, 0.5f, 0.5f,
+					new Material(ColorAttribute.createDiffuse(Color.BLUE)), Usage.Position | Usage.Normal);
+			instanceObject.add(new ModelInstance(mdlobj));
+		}
+	}
+
+	public void render3DProta() {
+		player.update(0.04f);
+		Matrix4 tr = new Matrix4();
+		float x = player.getX() - 1100;
+		float z = player.getY() - 1330;
+
+		tr.setToTranslation(x / 45f, 0, -z / 45f);
+
 		modelBatch.begin(cam);
-		instanceProta.transform=tr;
+		instanceProta.transform = tr;
 		modelBatch.render(instanceProta, environment);
+		modelBatch.end();
+	}
+
+	private void render3DNPC(int i) {
+		npcs.get(i).update(0.05f);
+		Matrix4 tr = new Matrix4();
+		if(i==0){
+			float x = npcs.get(i).xOriginal - 2200;
+			float z = npcs.get(i).yOriginal - 2500;
+
+			tr.setToTranslation(x / 100f, 0, -z / 100f);
+		}else if(i==1){
+			float x = npcs.get(i).xOriginal - 1400;
+			float z = npcs.get(i).yOriginal - 2000;
+
+			tr.setToTranslation(x / 100f, 0, -z / 100f);
+		}else{
+			float x = npcs.get(i).xOriginal - 1650;
+			float z = npcs.get(i).yOriginal - 1250;
+
+			tr.setToTranslation(x / 100f, 0, -z / 100f);
+		}
+		
+		
+
+		modelBatch.begin(cam);
+		instanceNPC.get(i).transform = tr;
+		modelBatch.render(instanceNPC.get(i), environment);
 		modelBatch.end();
 	}
 }
