@@ -28,6 +28,8 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.loader.ObjLoader;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Vector3;
 import com.pokemon.entities.Player;
 import com.pokemon.tween.SpriteAccessor;
 import com.pokemon.utilidades.ArchivoGuardado;
@@ -119,14 +121,18 @@ public class CombateEntrenador extends Enfrentamiento {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
+		
+		if(fase>0){
+			render3D();
+		}
+		if(fase>1){
+			render3DPokemon();
+		}
 		//render3D();
 		
 		font.setColor(Color.BLACK);
 		tweenManager.update(delta);
 		batch.begin();
-		base.draw(batch);
-
-		baseEnemy.draw(batch);
 
 		message.draw(batch);
 		message.setSize(720, 120);
@@ -146,22 +152,11 @@ public class CombateEntrenador extends Enfrentamiento {
 		if (fase == 1) {
 
 			protagonista.setPosition(100, 120);
-			base.setPosition(-70, 120);
-			baseEnemy.setPosition(350, 300);
 			protagonista.draw(batch);
 			
 			/*modelBatch.begin(cam);
 			modelBatch.render(instances[iPokemonEnemigo], environment);
 			modelBatch.end();*/
-		}
-		/*
-		 * Aparicion de pokemon nuestro
-		 */
-		if (fase > 2) {
-			
-			baseEnemy.setPosition(350, 300);
-			base.setPosition(-70, 120);
-
 		}
 
 		/*
@@ -269,18 +264,36 @@ public class CombateEntrenador extends Enfrentamiento {
 			}
 		}
 		batch.end();
-		if(fase>0){
-			render3D();
-		}
-		if(fase>1){
-			render3DPokemon();
-		}
 	}
 	
 	private void render3D() {
-			modelBatch.begin(cam);
-	        modelBatch.render(instances[iPokemonEnemigo], environment);
-	        modelBatch.end();
+		Matrix4 tr = new Matrix4();
+		tr.setToTranslation(15, 20, 5);
+		Matrix4 tr2 = new Matrix4();
+		tr2.setToRotation(Vector3.X, 90);
+		Matrix4 tr3 = new Matrix4();
+		tr3.setToTranslation(0, -20, 0);
+		tr = tr.mul(tr2);
+		tr3 = tr3.mul(tr);
+		Matrix4 tr4 = new Matrix4();
+		tr4.setToTranslation(-10, 0, 30);
+		tr4 = tr4.mul(tr3);
+		Matrix4 tr5 = new Matrix4();
+		tr5.setToRotation(Vector3.X, 180);
+		Matrix4 tr6 = new Matrix4();
+		tr6.setToScaling(20, 20, 20);
+		Matrix4 tr7 = new Matrix4();
+		tr7.setToTranslation(0, 5, 0);
+		tr5 = tr5.mul(tr6).mul(tr7);
+		baseInstance.transform = tr3;
+		baseEnemyInstance.transform = tr4;
+		bgInstance.transform = tr5;
+		modelBatch.begin(cam);
+	    modelBatch.render(instances[iPokemonEnemigo], environment);
+	    modelBatch.render(baseInstance, environment);
+	    modelBatch.render(baseEnemyInstance, environment);
+	    modelBatch.render(bgInstance, environment);
+	    modelBatch.end();
 	}
 
 	@Override
@@ -292,12 +305,8 @@ public class CombateEntrenador extends Enfrentamiento {
 		protagonista = new Sprite(new Texture("res/imgs/entrenadores/prota.png"));
 		protagonista.setSize(150, 240);
 		if (fase < 1) {
-			Tween.set(base, SpriteAccessor.SLIDE).target(500, 120).start(tweenManager);
-			Tween.to(base, SpriteAccessor.SLIDE, 2).target(-70, 120).start(tweenManager);
 			Tween.set(protagonista, SpriteAccessor.SLIDE).target(500, 120).start(tweenManager);
 			Tween.to(protagonista, SpriteAccessor.SLIDE, 2).target(100, 120).start(tweenManager);
-			Tween.set(baseEnemy, SpriteAccessor.SLIDE).target(-250, 300).start(tweenManager);
-			Tween.to(baseEnemy, SpriteAccessor.SLIDE, 2).target(350, 300).start(tweenManager);
 			Tween.set(entrenador, SpriteAccessor.SLIDE).target(-250, 350).start(tweenManager);
 			Tween.to(entrenador, SpriteAccessor.SLIDE, 2).target(400, 350).start(tweenManager);
 		}

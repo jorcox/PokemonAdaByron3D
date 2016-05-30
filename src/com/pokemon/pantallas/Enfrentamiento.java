@@ -96,7 +96,7 @@ public abstract class Enfrentamiento extends Pantalla {
 	SpriteBatch batch;
 	Texture tipos, barraVida;
 	TextureRegion[] regionesTipo, regionesTipoSel, barrasVida, barraExp;
-	protected Sprite base, baseEnemy, message, bgOp, bgOpTrans, boton, luchar, mochilaS, pokemonOp, huir, dedo,
+	protected Sprite message, bgOp, bgOpTrans, boton, luchar, mochilaS, pokemonOp, huir, dedo,
 			cajaLuchar, tipo1, tipo2, tipo3, tipo4, cajaPkmn, cajaPkmnpokemonEnemigo, entrenador, protagonista, expBar,
 			level, aprender, cajaAprender;
 
@@ -104,8 +104,9 @@ public abstract class Enfrentamiento extends Pantalla {
 	protected ModelBatch modelBatch;
 	protected Environment environment;
 	protected CameraInputController camController;
-	Model pokemonModel;
-	ModelInstance pokemonInstance;
+	Model pokemonModel, base, baseEnemy, bg;
+	ModelInstance pokemonInstance, baseInstance, baseEnemyInstance, bgInstance;
+	ModelBuilder builder;
 
 	protected InputMultiplexer inputMultiplexer;
 
@@ -124,6 +125,20 @@ public abstract class Enfrentamiento extends Pantalla {
 		font = generator.generateFont(parameter); // font size 35 pixels
 		fontC = generator.generateFont(parameterC);
 
+		/* Builds models for bases */
+		builder = new ModelBuilder();
+		base = builder.createSphere(20f, 20f, 20f, 50, 50,
+	            new Material(ColorAttribute.createDiffuse(Color.GREEN)),
+	            Usage.Position | Usage.Normal);
+		baseInstance = new ModelInstance(base);
+		baseEnemy = builder.createSphere(20f, 20f, 20f, 50, 50,
+	            new Material(ColorAttribute.createDiffuse(Color.GREEN)),
+	            Usage.Position | Usage.Normal);
+		baseEnemyInstance = new ModelInstance(baseEnemy);
+		bg = builder.createRect(-5, -5, -5, 5, -5, -5, 5, -5, 5, -5, -5, 5, 0, 0, -1, 
+				new Material(ColorAttribute.createDiffuse(Color.GREEN)),
+	            Usage.Position | Usage.Normal);
+		bgInstance = new ModelInstance(bg);
 	}
 
 	@Override
@@ -138,8 +153,6 @@ public abstract class Enfrentamiento extends Pantalla {
 		Tween.registerAccessor(Sprite.class, new SpriteAccessor());
 		batch = new SpriteBatch();
 
-		base = new Sprite(new Texture("res/imgs/batallas/playerbaseForestGrassEve.png"));
-		baseEnemy = new Sprite(new Texture("res/imgs/batallas/enemybaseFieldGrassEve.png"));
 		bgOp = new Sprite(new Texture("res/imgs/batallas/fondoOpciones.png"));
 		bgOpTrans = new Sprite(new Texture("res/imgs/batallas/bgOpTrans.png"));
 		dedo = new Sprite(new Texture("res/imgs/batallas/dedo.png"));

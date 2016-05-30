@@ -270,7 +270,7 @@ public class Player extends Sprite implements Serializable {
 						if (!play.getCtx().getMapas().containsKey(mapa + ".tmx")) {
 							play.getCtx().getMapas().put(play.getMapa(), play);
 							Pantalla p = new Play(play.getCtx(), Integer.parseInt((String) t.getProperties().get("x")),
-									Integer.parseInt((String) t.getProperties().get("y")), getLastPressed(), mapa + ".tmx");
+									Integer.parseInt((String) t.getProperties().get("y")), getLastPressed(), mapa + ".png");
 							play.getCtx().getMapas().put(mapa + ".tmx", p);
 							//play.getCtx().setMusic(mapa+".tmx");
 							((Game) Gdx.app.getApplicationListener()).setScreen(p);
