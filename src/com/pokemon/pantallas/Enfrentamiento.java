@@ -104,8 +104,8 @@ public abstract class Enfrentamiento extends Pantalla {
 	protected ModelBatch modelBatch;
 	protected Environment environment;
 	protected CameraInputController camController;
-	Model pokemonModel, base, baseEnemy;
-	ModelInstance pokemonInstance, baseInstance, baseEnemyInstance;
+	Model pokemonModel, base, baseEnemy, bg;
+	ModelInstance pokemonInstance, baseInstance, baseEnemyInstance, bgInstance;
 	ModelBuilder builder;
 
 	protected InputMultiplexer inputMultiplexer;
@@ -127,14 +127,18 @@ public abstract class Enfrentamiento extends Pantalla {
 
 		/* Builds models for bases */
 		builder = new ModelBuilder();
-		base = builder.createSphere(5f, 5f, 5f, 50, 50,
+		base = builder.createSphere(20f, 20f, 20f, 50, 50,
 	            new Material(ColorAttribute.createDiffuse(Color.GREEN)),
 	            Usage.Position | Usage.Normal);
 		baseInstance = new ModelInstance(base);
-		baseEnemy = builder.createSphere(5f, 5f, 5f, 50, 50,
+		baseEnemy = builder.createSphere(20f, 20f, 20f, 50, 50,
 	            new Material(ColorAttribute.createDiffuse(Color.GREEN)),
 	            Usage.Position | Usage.Normal);
 		baseEnemyInstance = new ModelInstance(baseEnemy);
+		bg = builder.createRect(-5, -5, -5, 5, -5, -5, 5, -5, 5, -5, -5, 5, 0, 0, -1, 
+				new Material(ColorAttribute.createDiffuse(Color.GREEN)),
+	            Usage.Position | Usage.Normal);
+		bgInstance = new ModelInstance(bg);
 	}
 
 	@Override

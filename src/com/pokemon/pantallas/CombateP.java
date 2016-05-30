@@ -110,6 +110,9 @@ public class CombateP extends Enfrentamiento {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		
+		render3D();
+		render3DPokemon();
+		
 		font.setColor(Color.BLACK);
 		tweenManager.update(delta);
 		batch.begin();
@@ -216,8 +219,6 @@ public class CombateP extends Enfrentamiento {
 			lanzamientoBall();
 		}
 		batch.end();
-		render3D();
-		render3DPokemon();
 	}
 	
 	private void render3D() {
@@ -225,12 +226,29 @@ public class CombateP extends Enfrentamiento {
 		tr.setToTranslation(15, 20, 5);
 		Matrix4 tr2 = new Matrix4();
 		tr2.setToRotation(Vector3.X, 90);
+		Matrix4 tr3 = new Matrix4();
+		tr3.setToTranslation(0, -20, 0);
 		tr = tr.mul(tr2);
+		tr3 = tr3.mul(tr);
+		Matrix4 tr4 = new Matrix4();
+		tr4.setToTranslation(-10, 0, 30);
+		tr4 = tr4.mul(tr3);
+		Matrix4 tr5 = new Matrix4();
+		tr5.setToRotation(Vector3.X, 180);
+		Matrix4 tr6 = new Matrix4();
+		tr6.setToScaling(20, 20, 20);
+		Matrix4 tr7 = new Matrix4();
+		tr7.setToTranslation(0, 5, 0);
+		tr5 = tr5.mul(tr6).mul(tr7);
 		instance.transform=tr;
+		baseInstance.transform = tr3;
+		baseEnemyInstance.transform = tr4;
+		bgInstance.transform = tr5;
 		modelBatch.begin(cam);
         modelBatch.render(instance, environment);
         modelBatch.render(baseInstance, environment);
         modelBatch.render(baseEnemyInstance, environment);
+        modelBatch.render(bgInstance, environment);
         modelBatch.end();
 	}
 
