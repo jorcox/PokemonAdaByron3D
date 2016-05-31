@@ -622,6 +622,7 @@
     <property name="dialogo" value="resano_gimhardware"/>
     <property name="dir" value="derecha"/>
     <property name="dis" value="8"/>
+    <property name="medalla" value="ARM"/>
     <property name="pack" value="eusine"/>
    </properties>
   </object>

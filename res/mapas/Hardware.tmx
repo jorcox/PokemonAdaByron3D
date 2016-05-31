@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="32" tileheight="32" nextobjectid="32">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="32" tileheight="32" nextobjectid="34">
  <tileset firstgid="1" name="Outside" tilewidth="32" tileheight="32" tilecount="4016" columns="8">
   <image source="../Tilesets/Outside.png" trans="00aa00" width="256" height="16064"/>
  </tileset>
@@ -28,26 +28,12 @@
  <tileset firstgid="9360" name="CustomTiles" tilewidth="32" tileheight="32" tilecount="10" columns="10">
   <image source="../Tilesets/CustomTiles.png" trans="00aa00" width="320" height="32"/>
  </tileset>
- <objectgroup name="Trans">
-  <object id="11" gid="9355" x="509" y="832" width="32" height="32">
+ <objectgroup name="Trans" visible="0">
+  <object id="11" gid="9355" x="511" y="833" width="32" height="32">
    <properties>
-    <property name="mapa" value="Tranvia_n"/>
-    <property name="x" value="1000"/>
-    <property name="y" value="200"/>
-   </properties>
-  </object>
-  <object id="16" gid="9355" x="543" y="831" width="32" height="32">
-   <properties>
-    <property name="mapa" value="Tranvia_n"/>
-    <property name="x" value="1000"/>
-    <property name="y" value="200"/>
-   </properties>
-  </object>
-  <object id="17" gid="9355" x="577" y="832" width="32" height="32">
-   <properties>
-    <property name="mapa" value="Tranvia_n"/>
-    <property name="x" value="1000"/>
-    <property name="y" value="200"/>
+    <property name="mapa" value="Bosque"/>
+    <property name="x" value="50"/>
+    <property name="y" value="2600"/>
    </properties>
   </object>
   <object id="18" gid="9355" x="481" y="129" width="32" height="32">
@@ -90,6 +76,20 @@
     <property name="mapa" value="GimHardware"/>
     <property name="x" value="1000"/>
     <property name="y" value="150"/>
+   </properties>
+  </object>
+  <object id="32" gid="9355" x="544" y="832" width="32" height="32">
+   <properties>
+    <property name="mapa" value="Bosque"/>
+    <property name="x" value="50"/>
+    <property name="y" value="2600"/>
+   </properties>
+  </object>
+  <object id="33" gid="9355" x="575" y="832" width="32" height="32">
+   <properties>
+    <property name="mapa" value="Bosque"/>
+    <property name="x" value="50"/>
+    <property name="y" value="2600"/>
    </properties>
   </object>
  </objectgroup>

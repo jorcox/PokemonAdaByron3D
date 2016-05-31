@@ -623,6 +623,7 @@
     <property name="dialogo" value="mena_gimmena"/>
     <property name="dir" value="cara"/>
     <property name="dis" value="6"/>
+    <property name="medalla" value="PACMAN"/>
     <property name="pack" value="monti"/>
    </properties>
   </object>

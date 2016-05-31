@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="32" tileheight="32" nextobjectid="17">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="32" tileheight="32" nextobjectid="19">
  <tileset firstgid="1" name="Outside" tilewidth="32" tileheight="32" tilecount="4016" columns="8">
   <image source="../Tilesets/Outside.png" trans="00aa00" width="256" height="16064"/>
  </tileset>
@@ -647,6 +647,16 @@
     <property name="dir" value="espalda"/>
     <property name="dis" value="6"/>
     <property name="pack" value="elm"/>
+   </properties>
+  </object>
+  <object id="18" gid="10954" x="225" y="704" width="32" height="32">
+   <properties>
+    <property name="combate" value="true"/>
+    <property name="dialogo" value="pelayo_terraza"/>
+    <property name="dir" value="derecha"/>
+    <property name="dis" value="7"/>
+    <property name="pack" value="seymor"/>
+    <property name="volver" value="true"/>
    </properties>
   </object>
  </objectgroup>
