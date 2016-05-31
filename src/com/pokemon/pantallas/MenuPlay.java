@@ -49,7 +49,6 @@ public class MenuPlay extends Pantalla {
 
 	public MenuPlay(ArchivoGuardado ctx, float x, float y, int lastPressed, String map,
 			List<Pokemon> listaPokemon, Play play) {
-		ArchivoGuardado.musica = null;
 		this.x = x;
 		this.y = y;
 		this.lastPressed = lastPressed;
@@ -101,9 +100,7 @@ public class MenuPlay extends Pantalla {
 			regButton4 = new Sprite(selButton);
 			save = new Sprite(sSel);
 			break;
-
 		}
-
 	}
 
 	private void resetSelection() {
@@ -193,12 +190,16 @@ public class MenuPlay extends Pantalla {
 		} else if (keycode == getCtx().getTeclaB()) {
 			if(play.getCtx().getMapas().containsKey(map)){				
 				Jugador aux = Jugador.nuevoJugador(getCtx().jugador);
-				Pantalla pant=play.getCtx().getMapas().get(map);
-				((Game) Gdx.app.getApplicationListener()).setScreen(pant);
-				pant.getCtx().jugador=aux;
+				//Pantalla pant = play.getCtx().getMapas().get(map);
+				((Game) Gdx.app.getApplicationListener()).setScreen(play);
+				play.getCtx().x=x;
+				play.getCtx().y=y;
+				play.getCtx().jugador = aux;
 			} else {
+				Jugador aux = Jugador.nuevoJugador(getCtx().jugador);
 				((Game) Gdx.app.getApplicationListener()).setScreen(new Play(getCtx(), x, y,
-						lastPressed, map));
+						lastPressed, map.replace("tmx", "png")));
+				getCtx().jugador = aux;
 			}
 		}
 		return true;
@@ -239,6 +240,7 @@ public class MenuPlay extends Pantalla {
 		getCtx().lastPressed = lastPressed;
 		getCtx().map = map;
 		getCtx().getMapas().put(play.getMapa(), play);
+		getCtx().existe = true;
 		
 		boolean saved = Guardador.guardar(getCtx());
 		writing = true;
