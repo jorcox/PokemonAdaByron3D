@@ -36,7 +36,7 @@ public class PokemonAdaByron extends Game {
 			ctx = new ArchivoGuardado();
 			//setScreen(new Play(ctx, 500, 200, 3, "Hendrix.tmx"));
 			//setScreen(new Play(ctx, 1000, 1300, 3, "Tranvia_n.png"));
-			setScreen(new Play(ctx, 420, 40, 3, "Cafeteria_n.png"));
+			setScreen(new Play(ctx, 1000, 1300, 3, "Tranvia_n.png"));
 			//setScreen(new Play(ctx, 500, 2000, 3, "GimGuti.tmx"));
 			//setScreen(new Play(ctx, 500, 500, 3, "Geoslab.tmx"));
 			//setScreen(new PokemonIniciales(ctx));
