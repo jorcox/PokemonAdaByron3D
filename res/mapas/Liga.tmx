@@ -610,6 +610,7 @@
     <property name="dialogo" value="isma_liga"/>
     <property name="dir" value="cara"/>
     <property name="dis" value="2"/>
+    <property name="medalla" value="LIGA"/>
     <property name="pack" value="elm"/>
    </properties>
   </object>
