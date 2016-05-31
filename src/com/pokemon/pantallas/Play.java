@@ -848,6 +848,11 @@ public class Play extends Pantalla {
 		float x = player.getX() - 1100;
 		float z = player.getY() - 1330;
 
+		/* Actualiza camara sobre el jugador */
+		cam.position.set(x/45f, 10f, -z/45f);
+		cam.lookAt(x/45f, 0f, -z/45f);
+		cam.update();
+		
 		tr.setToTranslation(x / 45f, 0, -z / 45f);
 
 		modelBatch.begin(cam);
