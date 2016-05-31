@@ -27,6 +27,7 @@ public class PosicionIniciales {
 		map.put("Bosque.tmx", new Posicion(550, 200));
 		map.put("Cueva.tmx", new Posicion(2800, 2050));
 		map.put("Aulas.tmx", new Posicion(250, 2750));
+		map.put("Cafeteria_n.tmx", new Posicion(420, 40));
 	}
 
 	public HashMap<String, Posicion> getHashMap() {

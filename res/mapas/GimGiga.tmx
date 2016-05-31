@@ -718,6 +718,7 @@
     <property name="dialogo" value="seron_gimgiga"/>
     <property name="dir" value="cara"/>
     <property name="dis" value="4"/>
+    <property name="medalla" value="OPENGL"/>
     <property name="pack" value="cient"/>
    </properties>
   </object>

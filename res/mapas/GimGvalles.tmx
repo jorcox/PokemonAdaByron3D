@@ -600,6 +600,7 @@
     <property name="dialogo" value="gvalles_gimgvalles"/>
     <property name="dir" value="izquierda"/>
     <property name="dis" value="8"/>
+    <property name="medalla" value="SELINUX"/>
     <property name="pack" value="hilario"/>
    </properties>
   </object>

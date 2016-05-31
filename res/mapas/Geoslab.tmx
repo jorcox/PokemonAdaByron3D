@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="32" tileheight="32" nextobjectid="19">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="32" tileheight="32" nextobjectid="21">
  <tileset firstgid="1" name="Outside" tilewidth="32" tileheight="32" tilecount="4016" columns="8">
   <image source="../Tilesets/Outside.png" trans="00aa00" width="256" height="16064"/>
  </tileset>
@@ -682,6 +682,26 @@
     <property name="dir" value="espalda"/>
     <property name="dis" value="4"/>
     <property name="pack" value="seymor"/>
+   </properties>
+  </object>
+  <object id="19" gid="10954" x="1985" y="2432" width="32" height="32">
+   <properties>
+    <property name="combate" value="true"/>
+    <property name="dialogo" value="artic_geoslab"/>
+    <property name="dir" value="espalda"/>
+    <property name="dis" value="8"/>
+    <property name="pack" value="chico"/>
+    <property name="volver" value="true"/>
+   </properties>
+  </object>
+  <object id="20" gid="10954" x="2240" y="2176" width="32" height="32">
+   <properties>
+    <property name="combate" value="true"/>
+    <property name="dialogo" value="javier_geoslab"/>
+    <property name="dir" value="izquierda"/>
+    <property name="dis" value="6"/>
+    <property name="pack" value="seymor"/>
+    <property name="volver" value="true"/>
    </properties>
   </object>
  </objectgroup>
