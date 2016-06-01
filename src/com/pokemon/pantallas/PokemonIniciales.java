@@ -320,7 +320,7 @@ public class PokemonIniciales extends Pantalla {
 			poke.sanar();
 			getCtx().jugador.getEquipo().add(poke);
 			Jugador aux = Jugador.nuevoJugador(getCtx().jugador);
-			Pantalla pantalla = new Play(getCtx(), 200, 300, 3, "Tranvia_n.png");
+			Pantalla pantalla = new Play(getCtx(), 1000, 500, 3, "Tranvia_n.png");
 			((Game) Gdx.app.getApplicationListener()).setScreen(pantalla);
 			pantalla.getCtx().jugador = aux;
 		} catch (Exception e) {
