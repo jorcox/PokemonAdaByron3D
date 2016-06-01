@@ -672,7 +672,7 @@ public abstract class Enfrentamiento extends Pantalla {
 	public void render3DPokemon() {
 		modelBatch.begin(cam);
 		Matrix4 tr = new Matrix4();
-		tr.setToTranslation(0, 0, 35);
+		tr.setToTranslation(0, 20, 35);
 		Matrix4 rt = new Matrix4();
 		rt.setToRotation(Vector3.X, 90);
 		Matrix4 rt2 = new Matrix4();
