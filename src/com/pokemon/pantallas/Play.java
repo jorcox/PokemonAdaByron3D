@@ -150,7 +150,6 @@ public class Play extends Pantalla {
 
 		cargarFuente();
 
-		setJugador();
 	}
 
 	@Override
@@ -303,7 +302,6 @@ public class Play extends Pantalla {
 				map.getLayers().get("Objetos"), map.getLayers().get("Trans"), npcs, getCtx().dialogo, this);
 		player.setPosition(getCtx().x, getCtx().y);
 		player.setLastPressed(getCtx().lastPressed);
-		equipoPokemon();
 
 		for (NPC npc : npcs) {
 			npc.setPlayer(player);
